@@ -1,17 +1,15 @@
-# Start from a Debian image with the latest version of Go installed
-# and a workspace (GOPATH) configured at /go.
 FROM golang
 
-# Copy the local package files to the container's workspace.
 ADD . /go/src/github.com/cecchisandrone/smarthome-server
 
-# Build the outyet command inside the container.
-# (You may fetch or manage dependencies here,
-# either manually or with a tool like "godep".)
-RUN go install github.com/cecchisandrone/smarthome-server
+RUN go get github.com/golang/dep/cmd/dep
 
-# Run the outyet command by default when the container starts.
-ENTRYPOINT /go/bin/smarthome-server
+WORKDIR /go/src/github.com/cecchisandrone/smarthome-server
 
-# Document that the service listens on port 8080.
+RUN dep ensure --vendor-only
+
+RUN go build -o smarthome-server *.go
+
+ENTRYPOINT /go/src/github.com/cecchisandrone/smarthome-server/smarthome-server
+
 EXPOSE 8080
