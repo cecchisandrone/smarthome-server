@@ -3,13 +3,15 @@ package main
 import (
 	"net/http"
 
+	"github.com/gin-gonic/gin/binding"
+
 	"github.com/gin-gonic/gin"
 )
 
 // createTodo add a new todo
 func createTodo(c *gin.Context) {
 	var todoJSON transformedTodo
-	if err := c.ShouldBindJSON(&todoJSON); err == nil {
+	if err := c.ShouldBindWith(&todoJSON, binding.JSON); err == nil {
 		todo := todoModel{Title: todoJSON.Title, Completed: todoJSON.Completed}
 		db.Save(&todo)
 		todoJSON.ID = todo.ID
@@ -46,4 +48,8 @@ func fetchAllTodos(c *gin.Context) {
 		_todos = append(_todos, transformedTodo{ID: item.ID, Title: item.Title, Completed: item.Completed})
 	}
 	c.JSON(http.StatusOK, _todos)
+}
+
+func healthCheck(c *gin.Context) {
+	c.JSON(http.StatusOK, "")
 }

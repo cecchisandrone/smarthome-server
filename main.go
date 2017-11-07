@@ -9,6 +9,7 @@ func main() {
 	router := gin.Default()
 	v1 := router.Group("/api/v1/todos")
 	{
+		v1.GET("/health", healthCheck)
 		v1.POST("/", createTodo)
 		v1.GET("/:id", fetchSingleTodo)
 		v1.GET("/", fetchAllTodos)
