@@ -4,37 +4,41 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/cecchisandrone/smarthome-server/config"
+
+	"github.com/cecchisandrone/smarthome-server/persistence"
+	"github.com/facebookgo/inject"
 	"github.com/gin-gonic/gin"
-	log "github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
 )
 
 func main() {
 
-	// Detect environment
-	env, envSet := os.LookupEnv("SMARTHOME_ENV")
-	if !envSet {
-		env = "dev"
-	}
+	config.Init()
+	db := persistence.Init()
 
-	log.Info("SmartHome starting with environment ", env)
+	var g inject.Graph
+	s := Service{}
 
-	viper.SetConfigName("config/" + env) // no need to include file extension
-	viper.AddConfigPath(".")             // set the path of your config file
-	err := viper.ReadInConfig()
-	if err != nil {
-		fmt.Println("Config file not found...", err)
+	if err := g.Provide(
+		&inject.Object{Value: &s},
+		&inject.Object{Value: db},
+	); err != nil {
+		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 
-	dbInit()
+	if err := g.Populate(); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+
 	router := gin.Default()
 	v1 := router.Group("/api/v1/todos")
 	{
-		v1.POST("/", createTodo)
-		v1.GET("/:id", fetchSingleTodo)
-		v1.GET("/", fetchAllTodos)
+		v1.POST("/", s.createTodo)
+		v1.GET("/:id", s.fetchSingleTodo)
+		v1.GET("/", s.fetchAllTodos)
 	}
-	router.GET("/health", healthCheck)
+	router.GET("/health", s.healthCheck)
 	router.Run()
 }

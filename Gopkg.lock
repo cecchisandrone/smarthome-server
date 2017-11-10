@@ -2,6 +2,18 @@
 
 
 [[projects]]
+  branch = "master"
+  name = "github.com/facebookgo/inject"
+  packages = ["."]
+  revision = "cc1aa653e50f6a9893bcaef89e673e5b24e1e97b"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/facebookgo/structtag"
+  packages = ["."]
+  revision = "217e25fb96916cc60332e399c9aa63f5c422ceed"
+
+[[projects]]
   name = "github.com/fsnotify/fsnotify"
   packages = ["."]
   revision = "629574ca2a5df945712d3079857300b5e4da0236"
@@ -148,6 +160,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "a1728a173397276d0aa89270397cce7d59512737afd7307aac3dc4f75bf0cff2"
+  inputs-digest = "912a4825c6f34aad850577ea720bf45d9ebb101ebcebdff5bd637c268c7f4ab4"
   solver-name = "gps-cdcl"
   solver-version = 1
