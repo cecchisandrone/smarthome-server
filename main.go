@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/cecchisandrone/smarthome-server/config"
+	"github.com/cecchisandrone/smarthome-server/service"
 
 	"github.com/cecchisandrone/smarthome-server/persistence"
 	"github.com/facebookgo/inject"
@@ -13,32 +14,31 @@ import (
 
 func main() {
 
+	var g inject.Graph
+
+	// Prepare and inject dependencies
 	config.Init()
 	db := persistence.Init()
+	router := gin.Default()
 
-	var g inject.Graph
-	s := Service{}
+	services := []service.Service{&service.HealthCheck{}, &service.Profile{}, &service.Configuration{}}
 
-	if err := g.Provide(
-		&inject.Object{Value: &s},
-		&inject.Object{Value: db},
-	); err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
+	for _, s := range services {
+		g.Provide(&inject.Object{Value: s})
 	}
+
+	g.Provide(&inject.Object{Value: db})
+	g.Provide(&inject.Object{Value: router})
 
 	if err := g.Populate(); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 
-	router := gin.Default()
-	v1 := router.Group("/api/v1/todos")
-	{
-		v1.POST("/", s.createTodo)
-		v1.GET("/:id", s.fetchSingleTodo)
-		v1.GET("/", s.fetchAllTodos)
+	// Init service routes
+	for _, s := range services {
+		s.InitRoutes()
 	}
-	router.GET("/health", s.healthCheck)
+
 	router.Run()
 }

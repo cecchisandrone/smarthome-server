@@ -25,8 +25,13 @@ func Init() *gorm.DB {
 		fmt.Println(err)
 		panic("Failed to connect database")
 	}
+
+	// Enable log
+	db.LogMode(true)
+
 	//Migrate the schema
-	db.AutoMigrate(&model.TodoModel{})
+	db.AutoMigrate(&model.Profile{}, &model.Configuration{})
+	db.Model(&model.Profile{}).AddForeignKey("configuration_id", "configurations(id)", "CASCADE", "CASCADE")
 
 	return db
 }
