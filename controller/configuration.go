@@ -24,12 +24,12 @@ func (c Configuration) InitRoutes() {
 	configuration.DELETE("/:id", c.deleteConfiguration)
 }
 
-func (c *Configuration) getConfigurations(ctx *gin.Context) {
+func (c Configuration) getConfigurations(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, c.ConfigurationService.GetConfigurations())
 }
 
-func (c *Configuration) createConfiguration(ctx *gin.Context) {
+func (c Configuration) createConfiguration(ctx *gin.Context) {
 
 	var configuration model.Configuration
 	if err := ctx.ShouldBindWith(&configuration, binding.JSON); err == nil {
@@ -40,7 +40,7 @@ func (c *Configuration) createConfiguration(ctx *gin.Context) {
 	}
 }
 
-func (c *Configuration) getConfiguration(ctx *gin.Context) {
+func (c Configuration) getConfiguration(ctx *gin.Context) {
 
 	configurationID := ctx.Param("id")
 	configuration, err := c.ConfigurationService.GetConfiguration(configurationID)
@@ -51,7 +51,7 @@ func (c *Configuration) getConfiguration(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, configuration)
 }
 
-func (c *Configuration) deleteConfiguration(ctx *gin.Context) {
+func (c Configuration) deleteConfiguration(ctx *gin.Context) {
 
 	configurationID := ctx.Param("id")
 	if err := c.ConfigurationService.DeleteConfiguration(configurationID); err != nil {

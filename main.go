@@ -22,8 +22,8 @@ func main() {
 	db := persistence.Init()
 	router := gin.Default()
 
-	controllers := []controller.Controller{&controller.HealthCheck{}, &controller.Profile{}, &controller.Configuration{}}
-	services := []service.Service{&service.Profile{}, &service.Configuration{}}
+	controllers := []controller.Controller{&controller.HealthCheck{}, &controller.Profile{}, &controller.Configuration{}, &controller.Camera{}}
+	services := []service.Service{&service.Profile{}, &service.Configuration{}, &service.Camera{}}
 
 	for _, c := range controllers {
 		g.Provide(&inject.Object{Value: c})

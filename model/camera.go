@@ -2,7 +2,7 @@ package model
 
 import "github.com/jinzhu/gorm"
 
-type CameraConfiguration struct {
+type Camera struct {
 	gorm.Model
 	Name            string
 	Host            string

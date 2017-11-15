@@ -30,9 +30,9 @@ func Init() *gorm.DB {
 	db.LogMode(true)
 
 	//Migrate the schema
-	db.AutoMigrate(&model.Profile{}, &model.Configuration{}, &model.CameraConfiguration{})
+	db.AutoMigrate(&model.Profile{}, &model.Configuration{}, &model.Camera{})
 	db.Model(&model.Profile{}).AddForeignKey("configuration_id", "configurations(id)", "CASCADE", "CASCADE")
-	db.Model(&model.CameraConfiguration{}).AddForeignKey("configuration_id", "configurations(id)", "CASCADE", "CASCADE")
+	db.Model(&model.Camera{}).AddForeignKey("configuration_id", "configurations(id)", "CASCADE", "CASCADE")
 
 	return db
 }
