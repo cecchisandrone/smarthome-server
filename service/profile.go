@@ -1,54 +1,34 @@
 package service
 
 import (
-	"net/http"
+	"errors"
 
 	"github.com/cecchisandrone/smarthome-server/model"
-	"github.com/gin-gonic/gin"
-	"github.com/gin-gonic/gin/binding"
 	"github.com/jinzhu/gorm"
 )
 
 type Profile struct {
-	Db     *gorm.DB    `inject:""`
-	Router *gin.Engine `inject:""`
+	Db *gorm.DB `inject:""`
 }
 
-func (p Profile) InitRoutes() {
-
-	profile := p.Router.Group("/api/v1/profiles")
-
-	profile.GET("/", p.getProfiles)
-	profile.GET("/:id", p.getProfile)
-	profile.POST("/", p.createProfile)
-}
-
-func (p Profile) getProfiles(c *gin.Context) {
+func (p Profile) GetProfiles() []model.Profile {
 
 	var profiles []model.Profile
 	p.Db.Find(&profiles)
-	c.JSON(http.StatusOK, profiles)
+	return profiles
 }
 
-func (p Profile) createProfile(c *gin.Context) {
+func (p Profile) CreateProfile(profile *model.Profile) {
 
-	var profile model.Profile
-	if err := c.ShouldBindWith(&profile, binding.JSON); err == nil {
-		p.Db.Save(&profile)
-		c.JSON(http.StatusCreated, profile)
-	} else {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-	}
+	p.Db.Save(&profile)
 }
 
-func (p Profile) getProfile(c *gin.Context) {
+func (p Profile) GetProfile(profileID string) (*model.Profile, error) {
 
 	var profile model.Profile
-	profileID := c.Param("id")
 	p.Db.First(&profile, profileID)
 	if profile.ID == 0 {
-		c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "No profile found!"})
-		return
+		return nil, errors.New("Can't find profile with ID " + string(profileID))
 	}
-	c.JSON(http.StatusOK, profile)
+	return &profile, nil
 }

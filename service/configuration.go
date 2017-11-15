@@ -1,68 +1,44 @@
 package service
 
 import (
-	"net/http"
+	"errors"
 
 	"github.com/cecchisandrone/smarthome-server/model"
-	"github.com/gin-gonic/gin"
-	"github.com/gin-gonic/gin/binding"
 	"github.com/jinzhu/gorm"
 )
 
 type Configuration struct {
-	Db     *gorm.DB    `inject:""`
-	Router *gin.Engine `inject:""`
+	Db *gorm.DB `inject:""`
 }
 
-func (c Configuration) InitRoutes() {
-
-	configuration := c.Router.Group("/api/v1/configurations")
-
-	configuration.GET("/", c.getConfigurations)
-	configuration.GET("/:id", c.getConfiguration)
-	configuration.POST("/", c.createConfiguration)
-	configuration.DELETE("/:id", c.deleteConfiguration)
-}
-
-func (c *Configuration) getConfigurations(ctx *gin.Context) {
+func (c *Configuration) GetConfigurations() []model.Configuration {
 
 	var configurations []model.Configuration
 	c.Db.Find(&configurations)
-	ctx.JSON(http.StatusOK, configurations)
+	return configurations
 }
 
-func (c *Configuration) createConfiguration(ctx *gin.Context) {
-
-	var configuration model.Configuration
-	if err := ctx.ShouldBindWith(&configuration, binding.JSON); err == nil {
-		c.Db.Save(&configuration)
-		ctx.JSON(http.StatusCreated, configuration)
-	} else {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-	}
+func (c *Configuration) CreateConfiguration(configuration *model.Configuration) {
+	c.Db.Save(configuration)
 }
 
-func (c *Configuration) getConfiguration(ctx *gin.Context) {
+func (c *Configuration) GetConfiguration(configurationID string) (*model.Configuration, error) {
 
 	var configuration model.Configuration
-	configurationID := ctx.Param("id")
-	c.Db.Preload("Profile").First(&configuration, configurationID)
+	c.Db.Preload("Profile").Preload("CameraConfigurations").First(&configuration, configurationID)
 	if configuration.ID == 0 {
-		ctx.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "No configuration found!"})
-		return
+		return nil, errors.New("Can't find configuration with ID " + string(configurationID))
 	}
-	ctx.JSON(http.StatusOK, configuration)
+	return &configuration, nil
 }
 
-func (c *Configuration) deleteConfiguration(ctx *gin.Context) {
+func (c *Configuration) DeleteConfiguration(configurationID string) error {
 
 	var configuration model.Configuration
-	configurationID := ctx.Param("id")
 	c.Db.First(&configuration, configurationID)
 	if configuration.ID == 0 {
-		ctx.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "No configuration found!"})
-		return
+		return errors.New("Can't find configuration with ID " + string(configurationID))
 	}
 	c.Db.Unscoped().Delete(&configuration)
-	ctx.JSON(http.StatusOK, "Deleted")
+	return nil
 }
