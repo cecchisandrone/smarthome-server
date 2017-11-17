@@ -3,6 +3,7 @@ package controller
 import (
 	"net/http"
 
+	"github.com/cecchisandrone/smarthome-server/authentication"
 	"github.com/cecchisandrone/smarthome-server/model"
 	"github.com/cecchisandrone/smarthome-server/service"
 	"github.com/gin-gonic/gin"
@@ -10,14 +11,15 @@ import (
 )
 
 type Camera struct {
-	CameraService        *service.Camera        `inject:""`
-	ConfigurationService *service.Configuration `inject:""`
-	Router               *gin.Engine            `inject:""`
+	CameraService         *service.Camera                       `inject:""`
+	ConfigurationService  *service.Configuration                `inject:""`
+	Router                *gin.Engine                           `inject:""`
+	AuthMiddlewareFactory *authentication.AuthMiddlewareFactory `inject:""`
 }
 
 func (c Camera) InitRoutes() {
 
-	camera := c.Router.Group("/api/v1/configurations/:id/cameras")
+	camera := c.Router.Group("/api/v1/configurations/:id/cameras").Use(c.AuthMiddlewareFactory.AuthMiddleware.MiddlewareFunc())
 
 	camera.GET("/", c.getCameras)
 	camera.POST("/", c.createCamera)

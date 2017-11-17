@@ -2,6 +2,12 @@
 
 
 [[projects]]
+  name = "github.com/appleboy/gin-jwt"
+  packages = ["."]
+  revision = "f7347d7c16fc8297bf5b7215b9e4847a5ca05d90"
+  version = "v2.3.1"
+
+[[projects]]
   branch = "master"
   name = "github.com/facebookgo/inject"
   packages = ["."]
@@ -18,6 +24,12 @@
   packages = ["."]
   revision = "629574ca2a5df945712d3079857300b5e4da0236"
   version = "v1.4.2"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/gin-contrib/cors"
+  packages = ["."]
+  revision = "51f0ef8b07e973afb8b6c192bf90d5c3e575c01a"
 
 [[projects]]
   branch = "master"
@@ -146,6 +158,12 @@
   revision = "88f656faf3f37f690df1a32515b479415e1a6769"
 
 [[projects]]
+  name = "gopkg.in/dgrijalva/jwt-go.v3"
+  packages = ["."]
+  revision = "dbeaa9332f19a944acb5736b4456cfcc02140e29"
+  version = "v3.1.0"
+
+[[projects]]
   name = "gopkg.in/go-playground/validator.v8"
   packages = ["."]
   revision = "5f1438d3fca68893a817e4a66806cea46a9e4ebf"
@@ -160,6 +178,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "912a4825c6f34aad850577ea720bf45d9ebb101ebcebdff5bd637c268c7f4ab4"
+  inputs-digest = "c19b1d74fc2ad552fe53826b652d30cd5b5e16f8becb8c0d93db530b7379b05a"
   solver-name = "gps-cdcl"
   solver-version = 1

@@ -3,6 +3,7 @@ package controller
 import (
 	"net/http"
 
+	"github.com/cecchisandrone/smarthome-server/authentication"
 	"github.com/cecchisandrone/smarthome-server/model"
 	"github.com/cecchisandrone/smarthome-server/service"
 	"github.com/gin-gonic/gin"
@@ -10,13 +11,14 @@ import (
 )
 
 type Configuration struct {
-	ConfigurationService *service.Configuration `inject:""`
-	Router               *gin.Engine            `inject:""`
+	ConfigurationService  *service.Configuration                `inject:""`
+	Router                *gin.Engine                           `inject:""`
+	AuthMiddlewareFactory *authentication.AuthMiddlewareFactory `inject:""`
 }
 
 func (c Configuration) InitRoutes() {
 
-	configuration := c.Router.Group("/api/v1/configurations")
+	configuration := c.Router.Group("/api/v1/configurations").Use(c.AuthMiddlewareFactory.AuthMiddleware.MiddlewareFunc())
 
 	configuration.GET("/", c.getConfigurations)
 	configuration.GET("/:id", c.getConfiguration)

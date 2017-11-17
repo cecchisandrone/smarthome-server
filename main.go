@@ -8,8 +8,10 @@ import (
 	"github.com/cecchisandrone/smarthome-server/controller"
 	"github.com/cecchisandrone/smarthome-server/service"
 
+	"github.com/cecchisandrone/smarthome-server/authentication"
 	"github.com/cecchisandrone/smarthome-server/persistence"
 	"github.com/facebookgo/inject"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -21,8 +23,10 @@ func main() {
 	config.Init()
 	db := persistence.Init()
 	router := gin.Default()
+	// CORS config
+	router.Use(cors.Default())
 
-	controllers := []controller.Controller{&controller.HealthCheck{}, &controller.Profile{}, &controller.Configuration{}, &controller.Camera{}}
+	controllers := []controller.Controller{&controller.HealthCheck{}, &controller.Profile{}, &controller.Configuration{}, &controller.Camera{}, &controller.Authentication{}}
 	services := []service.Service{&service.Profile{}, &service.Configuration{}, &service.Camera{}}
 
 	for _, c := range controllers {
@@ -33,13 +37,19 @@ func main() {
 		g.Provide(&inject.Object{Value: s})
 	}
 
+	authMiddlewareFactory := &authentication.AuthMiddlewareFactory{}
+
 	g.Provide(&inject.Object{Value: db})
 	g.Provide(&inject.Object{Value: router})
+	g.Provide(&inject.Object{Value: authMiddlewareFactory})
 
 	if err := g.Populate(); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
+
+	// Init auth middleware
+	authMiddlewareFactory.Init()
 
 	// Init controller routes
 	for _, c := range controllers {
