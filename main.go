@@ -24,7 +24,10 @@ func main() {
 	db := persistence.Init()
 	router := gin.Default()
 	// CORS config
-	router.Use(cors.Default())
+	config := cors.DefaultConfig()
+	config.AllowAllOrigins = true
+	config.AddAllowHeaders("Origin", "Content-Length", "Content-Type", "Authorization")
+	router.Use(cors.New(config))
 
 	controllers := []controller.Controller{&controller.HealthCheck{}, &controller.Profile{}, &controller.Configuration{}, &controller.Camera{}, &controller.Authentication{}}
 	services := []service.Service{&service.Profile{}, &service.Configuration{}, &service.Camera{}}

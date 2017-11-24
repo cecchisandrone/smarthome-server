@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"fmt"
+
 	"github.com/cecchisandrone/smarthome-server/model"
 	"github.com/jinzhu/gorm"
 	"golang.org/x/crypto/bcrypt"
@@ -48,5 +49,12 @@ func (p Profile) Authenticate(username string, password string) bool {
 		}
 	}
 	return false
+}
 
+func (p Profile) GetProfileByUsername(username string) (*model.Profile, error) {
+	var profile model.Profile
+	if !p.Db.Where("username = ?", username).First(&profile).RecordNotFound() {
+		return &profile, nil
+	}
+	return nil, p.Db.Error
 }

@@ -14,7 +14,7 @@ type Configuration struct {
 func (c *Configuration) GetConfigurations() []model.Configuration {
 
 	var configurations []model.Configuration
-	c.Db.Find(&configurations)
+	c.Db.Preload("Profile").Preload("Cameras").Find(&configurations)
 	return configurations
 }
 
