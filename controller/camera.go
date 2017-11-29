@@ -24,6 +24,7 @@ func (c Camera) InitRoutes() {
 	camera.GET("/", c.getCameras)
 	camera.POST("/", c.createCamera)
 	camera.GET("/:cameraId", c.getCamera)
+	camera.PUT("/:cameraId", c.updateCamera)
 	camera.DELETE("/:cameraId", c.deleteCamera)
 }
 

@@ -27,6 +27,7 @@ func main() {
 	config := cors.DefaultConfig()
 	config.AllowAllOrigins = true
 	config.AddAllowHeaders("Origin", "Content-Length", "Content-Type", "Authorization")
+	config.AddAllowMethods("PUT", "DELETE", "GET", "POST")
 	router.Use(cors.New(config))
 
 	controllers := []controller.Controller{&controller.HealthCheck{}, &controller.Profile{}, &controller.Configuration{}, &controller.Camera{}, &controller.Authentication{}}
