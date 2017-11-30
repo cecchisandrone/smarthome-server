@@ -18,14 +18,10 @@ func (c *Configuration) GetConfigurations() []model.Configuration {
 	return configurations
 }
 
-func (c *Configuration) CreateConfiguration(configuration *model.Configuration) {
-	c.Db.Save(configuration)
-}
-
 func (c *Configuration) GetConfiguration(configurationID string) (*model.Configuration, error) {
 
 	var configuration model.Configuration
-	c.Db.Preload("Profile").Preload("Cameras").First(&configuration, configurationID)
+	c.Db.Preload("Profile").Preload("Cameras").Preload("Gate").First(&configuration, configurationID)
 	if configuration.ID == 0 {
 		return nil, errors.New("Can't find configuration with ID " + string(configurationID))
 	}
@@ -41,4 +37,7 @@ func (c *Configuration) DeleteConfiguration(configurationID string) error {
 	}
 	c.Db.Unscoped().Delete(&configuration)
 	return nil
+}
+func (c *Configuration) CreateOrUpdateConfiguration(configuration *model.Configuration) {
+	c.Db.Save(&configuration)
 }

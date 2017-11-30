@@ -63,6 +63,6 @@ func generateUrl(camera *model.Camera) {
 	case model.ADJ:
 		camera.Url = fmt.Sprintf("http://%s:%d/videostream.cgi?user=%s&pwd=%s", camera.Host, camera.Port, camera.Username, camera.Password)
 	case model.Microcam:
-		camera.Url = fmt.Sprintf("http://%s:%s@%s:%d/media/?action=stream", camera.Username, camera.Password, camera.Host, camera.Port)
+		camera.Url = fmt.Sprintf("http://%s:%d/media/?action=stream&user=%s&pwd=%s", camera.Host, camera.Port, camera.Username, camera.Password)
 	}
 }

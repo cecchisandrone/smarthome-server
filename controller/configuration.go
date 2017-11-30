@@ -22,6 +22,7 @@ func (c Configuration) InitRoutes() {
 
 	configuration.GET("/", c.getConfigurations)
 	configuration.GET("/:id", c.getConfiguration)
+	configuration.PUT("/:id", c.updateConfiguration)
 	configuration.POST("/", c.createConfiguration)
 	configuration.DELETE("/:id", c.deleteConfiguration)
 }
@@ -35,7 +36,7 @@ func (c Configuration) createConfiguration(ctx *gin.Context) {
 
 	var configuration model.Configuration
 	if err := ctx.ShouldBindWith(&configuration, binding.JSON); err == nil {
-		c.ConfigurationService.CreateConfiguration(&configuration)
+		c.ConfigurationService.CreateOrUpdateConfiguration(&configuration)
 		ctx.JSON(http.StatusCreated, configuration)
 	} else {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -61,4 +62,16 @@ func (c Configuration) deleteConfiguration(ctx *gin.Context) {
 		return
 	}
 	ctx.JSON(http.StatusOK, "Deleted")
+}
+
+func (c Configuration) updateConfiguration(ctx *gin.Context) {
+
+	var configuration model.Configuration
+
+	if err := ctx.ShouldBindWith(&configuration, binding.JSON); err == nil {
+		c.ConfigurationService.CreateOrUpdateConfiguration(&configuration)
+		ctx.JSON(http.StatusOK, configuration)
+	} else {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	}
 }
