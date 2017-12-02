@@ -4,8 +4,9 @@ import "github.com/jinzhu/gorm"
 
 type Configuration struct {
 	gorm.Model
-	Name    string
-	Profile Profile
-	Gate    Gate
-	Cameras []Camera
+	Name      string
+	Profile   Profile
+	Gate      Gate
+	Raspsonar Raspsonar
+	Cameras   []Camera
 }
