@@ -21,7 +21,7 @@ func (c *Configuration) GetConfigurations() []model.Configuration {
 func (c *Configuration) GetConfiguration(configurationID string) (*model.Configuration, error) {
 
 	var configuration model.Configuration
-	c.Db.Preload("Profile").Preload("Cameras").Preload("Gate").Preload("Raspsonar").First(&configuration, configurationID)
+	c.Db.Preload("Profile").Preload("Cameras").Preload("Gate").Preload("Temperature").Preload("Slack").Preload("Raspsonar").First(&configuration, configurationID)
 	if configuration.ID == 0 {
 		return nil, errors.New("Can't find configuration with ID " + string(configurationID))
 	}
