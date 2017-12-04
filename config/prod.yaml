@@ -1,3 +1,6 @@
 database:
   host: smarthome-db
   port: 3306
+temperature:
+  maxMeasurements: 72
+  intervalSeconds: 3600

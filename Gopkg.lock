@@ -62,6 +62,12 @@
   revision = "23c074d0eceb2b8a5bfdbb271ab780cde70f05a8"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/jasonlvhit/gocron"
+  packages = ["."]
+  revision = "42a5804d37aa0b9239b265e894a16b8edbf52d54"
+
+[[projects]]
   name = "github.com/jinzhu/gorm"
   packages = [".","dialects/mysql"]
   revision = "5174cc5c242a728b435ea2be8a2f7f998e15429b"
@@ -142,8 +148,14 @@
 [[projects]]
   branch = "master"
   name = "golang.org/x/crypto"
-  packages = ["ssh/terminal"]
+  packages = ["bcrypt","blowfish","ssh/terminal"]
   revision = "6a293f2d4b14b8e6d3f0539e383f6d0d30fce3fd"
+
+[[projects]]
+  branch = "master"
+  name = "golang.org/x/net"
+  packages = ["idna","publicsuffix"]
+  revision = "a8b9294777976932365dabb6640cf1468d95c70f"
 
 [[projects]]
   branch = "master"
@@ -154,7 +166,7 @@
 [[projects]]
   branch = "master"
   name = "golang.org/x/text"
-  packages = ["internal/gen","internal/triegen","internal/ucd","transform","unicode/cldr","unicode/norm"]
+  packages = ["collate","collate/build","internal/colltab","internal/gen","internal/tag","internal/triegen","internal/ucd","language","secure/bidirule","transform","unicode/bidi","unicode/cldr","unicode/norm","unicode/rangetable"]
   revision = "88f656faf3f37f690df1a32515b479415e1a6769"
 
 [[projects]]
@@ -170,6 +182,12 @@
   version = "v8.18.2"
 
 [[projects]]
+  name = "gopkg.in/resty.v1"
+  packages = ["."]
+  revision = "9ac9c42358f7c3c69ac9f8610e8790d7c338e85d"
+  version = "v1.0"
+
+[[projects]]
   branch = "v2"
   name = "gopkg.in/yaml.v2"
   packages = ["."]
@@ -178,6 +196,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "c19b1d74fc2ad552fe53826b652d30cd5b5e16f8becb8c0d93db530b7379b05a"
+  inputs-digest = "f472556e1205e111140f993b9cb160324ecdcc9d7f46ec729378816a3419b113"
   solver-name = "gps-cdcl"
   solver-version = 1

@@ -12,6 +12,10 @@ type Camera struct {
 	Db *gorm.DB `inject:""`
 }
 
+func (c Camera) Init() {
+
+}
+
 func (c Camera) GetCameras(configurationID string) []model.Camera {
 
 	var Cameras []model.Camera

@@ -14,6 +14,10 @@ type Profile struct {
 	Db *gorm.DB `inject:""`
 }
 
+func (p Profile) Init() {
+
+}
+
 func (p Profile) GetProfiles() ([]model.Profile, error) {
 
 	var profiles []model.Profile

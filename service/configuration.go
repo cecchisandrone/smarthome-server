@@ -11,11 +11,21 @@ type Configuration struct {
 	Db *gorm.DB `inject:""`
 }
 
+func (c *Configuration) Init() {
+
+}
+
 func (c *Configuration) GetConfigurations() []model.Configuration {
 
 	var configurations []model.Configuration
-	c.Db.Preload("Profile").Preload("Cameras").Find(&configurations)
+	c.Db.Preload("Profile").Preload("Cameras").Preload("Gate").Preload("Temperature").Preload("Slack").Preload("Raspsonar").Find(&configurations)
 	return configurations
+}
+
+func (c *Configuration) GetCurrent() model.Configuration {
+	var configuration model.Configuration
+	c.Db.Preload("Profile").Preload("Cameras").Preload("Gate").Preload("Temperature").Preload("Slack").Preload("Raspsonar").Last(&configuration)
+	return configuration
 }
 
 func (c *Configuration) GetConfiguration(configurationID string) (*model.Configuration, error) {
