@@ -27,7 +27,7 @@ func Init() *gorm.DB {
 	}
 
 	// Enable log
-	db.LogMode(true)
+	db.LogMode(viper.GetBool("database.showQueries"))
 
 	//Migrate the schema
 	db.AutoMigrate(&model.Profile{}, &model.Configuration{}, &model.Camera{}, &model.Gate{}, &model.Raspsonar{}, &model.Temperature{}, &model.Slack{})
