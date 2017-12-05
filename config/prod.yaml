@@ -5,3 +5,7 @@ database:
 temperature:
   maxMeasurements: 72
   intervalSeconds: 3600
+raspsonar:
+  measurements: 5
+  maxMeasurements: 72
+  intervalSeconds: 3600

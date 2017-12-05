@@ -4,4 +4,8 @@ database:
   showQueries: true
 temperature:
   maxMeasurements: 24
-  intervalSeconds: 10
+  intervalSeconds: 600
+raspsonar:
+  measurements: 5
+  maxMeasurements: 24
+  intervalSeconds: 20

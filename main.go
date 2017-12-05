@@ -31,8 +31,8 @@ func main() {
 	config.AddAllowMethods("PUT", "DELETE", "GET", "POST")
 	router.Use(cors.New(config))
 
-	controllers := []controller.Controller{&controller.HealthCheck{}, &controller.Profile{}, &controller.Configuration{}, &controller.Camera{}, &controller.Authentication{}, &controller.Temperature{}}
-	services := []service.Service{&service.Profile{}, &service.Configuration{}, &service.Camera{}, &service.Temperature{}}
+	controllers := []controller.Controller{&controller.HealthCheck{}, &controller.Profile{}, &controller.Configuration{}, &controller.Camera{}, &controller.Authentication{}, &controller.Temperature{}, &controller.Raspsonar{}, &controller.Gate{}}
+	services := []service.Service{&service.Profile{}, &service.Configuration{}, &service.Camera{}, &service.Temperature{}, &service.Raspsonar{}, &service.Gate{}}
 
 	for _, c := range controllers {
 		g.Provide(&inject.Object{Value: c})
