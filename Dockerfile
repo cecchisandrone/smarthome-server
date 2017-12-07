@@ -14,6 +14,6 @@ RUN go build -o smarthome-server *.go
 
 RUN rm -rf vendor
 
-CMD /go/src/github.com/cecchisandrone/smarthome-server/smarthome-server
+CMD ["/go/src/github.com/cecchisandrone/smarthome-server/smarthome-server"]
 
 EXPOSE 8080
