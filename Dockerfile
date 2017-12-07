@@ -10,10 +10,10 @@ WORKDIR /go/src/github.com/cecchisandrone/smarthome-server
 
 RUN dep ensure
 
-RUN go build -o /bin/smarthome-server *.go
+RUN go build -o smarthome-server *.go
 
-RUN rm -rf vendor && rm -rf /go/src
+RUN rm -rf vendor
 
-ENTRYPOINT /bin/smarthome-server
+CMD /go/src/github.com/cecchisandrone/smarthome-server/smarthome-server
 
 EXPOSE 8080
