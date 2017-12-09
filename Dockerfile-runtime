@@ -1,5 +1,5 @@
 FROM scratch
 ADD smarthome-server /
-ADD ./config/*.yml /config
+ADD config/*.yml /config
 CMD ["/smarthome-server"]
 EXPOSE 8080
