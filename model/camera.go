@@ -2,6 +2,7 @@ package model
 
 import (
 	"database/sql/driver"
+
 	"github.com/jinzhu/gorm"
 )
 
@@ -20,12 +21,13 @@ const (
 	Foscam   CameraType = "foscam"
 	ADJ      CameraType = "adj"
 	Microcam CameraType = "microcam"
+	SV3C     CameraType = "sv3c"
 )
 
 type Camera struct {
 	gorm.Model
 	Name            string
-	Type            CameraType `sql:"not null;type:ENUM('foscam', 'adj', 'microcam')"`
+	Type            CameraType `sql:"not null;type:ENUM('foscam', 'adj', 'microcam', 'sv3c')"`
 	Host            string
 	Port            uint
 	Url             string `gorm:"-"`

@@ -2,13 +2,14 @@ package service
 
 import (
 	"fmt"
+	"strconv"
+	"time"
+
 	"github.com/cecchisandrone/smarthome-server/model"
 	"github.com/cecchisandrone/smarthome-server/scheduler"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"gopkg.in/resty.v1"
-	"strconv"
-	"time"
 )
 
 type Raspsonar struct {
@@ -25,14 +26,23 @@ func (r *Raspsonar) Init() {
 }
 
 func (r *Raspsonar) GetLast(configuration model.Configuration) (time.Time, float64) {
-	resp, err := resty.R().Get(getRaspsonarUrl(configuration))
+	resp, err := resty.R().Get(getDistanceUrl(configuration))
 	if err == nil {
 		value, _ := strconv.ParseFloat(resp.String(), 64)
 		return time.Now(), value
 	} else {
-		log.Error("Unable to fetch raspsonar measuremenr. Reason:", err)
+		log.Error("Unable to fetch raspsonar measurement. Reason:", err)
 		return time.Now(), 0
 	}
+}
+
+func (r *Raspsonar) ToggleRelay(configuration model.Configuration, status uint) error {
+	_, err := resty.R().Put(getToggleRelayUrl(configuration, status))
+	if err != nil {
+		log.Error("Unable to toggle relay. Reason:", err)
+		return err
+	}
+	return nil
 }
 
 func (r *Raspsonar) GetScheduledMeasurements() *map[time.Time]float64 {
@@ -42,7 +52,7 @@ func (r *Raspsonar) GetScheduledMeasurements() *map[time.Time]float64 {
 func (r *Raspsonar) ScheduledMeasurement() {
 
 	configuration := r.ConfigurationService.GetCurrent()
-	resp, err := resty.R().Get(getRaspsonarUrl(configuration))
+	resp, err := resty.R().Get(getDistanceUrl(configuration))
 	if err == nil {
 		value, _ := strconv.ParseFloat(resp.String(), 64)
 		r.ScheduledMeasurements[time.Now()] = value
@@ -59,15 +69,22 @@ func (r *Raspsonar) ScheduledMeasurement() {
 			}
 		}
 	} else {
-		log.Error("Unable to fetch raspsonar measuremenr. Reason:", err)
+		log.Error("Unable to fetch raspsonar measurement. Reason:", err)
 	}
 }
 
-func getRaspsonarUrl(configuration model.Configuration) string {
+func getDistanceUrl(configuration model.Configuration) string {
 
 	host := configuration.Raspsonar.Host
 	port := configuration.Raspsonar.Port
-	index := configuration.Raspsonar.SonarIndex
-	measurements := viper.GetInt("raspsonar.measurements")
-	return fmt.Sprintf("http://%s:%d/raspio/rest/sonar/%d/distance?measurements=%d", host, port, index, measurements)
+	name := configuration.Raspsonar.SonarName
+	return fmt.Sprintf("http://%s:%d/devices/sonar/%s", host, port, name)
+}
+
+func getToggleRelayUrl(configuration model.Configuration, status uint) string {
+
+	host := configuration.Raspsonar.Host
+	port := configuration.Raspsonar.Port
+	name := configuration.Raspsonar.RelayName
+	return fmt.Sprintf("http://%s:%d/devices/relay/%s?status=%d", host, port, name, status)
 }
