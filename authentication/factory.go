@@ -19,8 +19,8 @@ func (a *AuthMiddlewareFactory) Init() {
 	a.AuthMiddleware = &jwt.GinJWTMiddleware{
 		Realm:      "test zone",
 		Key:        []byte("secret key"),
-		Timeout:    24 * time.Hour,
-		MaxRefresh: 24 * time.Hour,
+		Timeout:    8760 * time.Hour, // One year
+		MaxRefresh: 8760 * time.Hour, // One year
 		Authenticator: func(username string, password string, c *gin.Context) (string, bool) {
 			return username, a.ProfileService.Authenticate(username, password)
 		},
