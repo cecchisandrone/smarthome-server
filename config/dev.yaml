@@ -4,8 +4,7 @@ database:
   showQueries: true
 temperature:
   maxMeasurements: 24
-  intervalSeconds: 600
+  intervalSeconds: 30
 raspsonar:
-  measurements: 5
   maxMeasurements: 24
-  intervalSeconds: 20
+  intervalSeconds: 30
