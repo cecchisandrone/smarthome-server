@@ -23,14 +23,14 @@ func (t *Temperature) Init() {
 	t.MaxMeasurements = viper.GetInt("temperature.maxMeasurements")
 }
 
-func (t *Temperature) GetLast(configuration model.Configuration) (time.Time, float64) {
+func (t *Temperature) GetLast(configuration model.Configuration) (time.Time, float64, error) {
 	resp, err := resty.R().Get(getTemperatureUrl(configuration))
 	if err == nil {
 		value, _ := strconv.ParseFloat(resp.String(), 64)
-		return time.Now(), value
+		return time.Now(), value, err
 	} else {
 		log.Error("Unable to fetch temperature measurement. Reason:", err)
-		return time.Now(), 0
+		return time.Now(), 0, err
 	}
 }
 

@@ -14,6 +14,8 @@ import (
 	"github.com/facebookgo/inject"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"gopkg.in/resty.v1"
+	"time"
 )
 
 func main() {
@@ -30,6 +32,10 @@ func main() {
 	config.AddAllowHeaders("Origin", "Content-Length", "Content-Type", "Authorization")
 	config.AddAllowMethods("PUT", "DELETE", "GET", "POST")
 	router.Use(cors.New(config))
+
+	// Resty config
+	// Retries are configured per client
+	resty.DefaultClient.SetTimeout(10 * time.Second)
 
 	controllers := []controller.Controller{&controller.HealthCheck{}, &controller.Profile{}, &controller.Configuration{}, &controller.Camera{}, &controller.Authentication{}, &controller.Temperature{}, &controller.Raspsonar{}, &controller.Gate{}}
 	services := []service.Service{&service.Profile{}, &service.Configuration{}, &service.Camera{}, &service.Temperature{}, &service.Raspsonar{}, &service.Gate{}}

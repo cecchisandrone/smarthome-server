@@ -34,8 +34,12 @@ func (t Temperature) getMeasurements(ctx *gin.Context) {
 	}
 
 	if scheduledMeasurements == "false" {
-		timestamp, value := t.TemperatureService.GetLast(*configuration)
-		ctx.JSON(http.StatusOK, gin.H{"timestamp": timestamp, "value": value})
+		timestamp, value, err := t.TemperatureService.GetLast(*configuration)
+		if err == nil {
+			ctx.JSON(http.StatusOK, gin.H{"timestamp": timestamp, "value": value})
+		} else {
+			ctx.JSON(http.StatusServiceUnavailable, gin.H{"message": err.Error()})
+		}
 	} else {
 		measurements := t.TemperatureService.GetScheduledMeasurements()
 		ctx.JSON(http.StatusOK, &measurements)
