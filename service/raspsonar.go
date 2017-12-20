@@ -8,6 +8,7 @@ import (
 	"errors"
 	"github.com/cecchisandrone/smarthome-server/model"
 	"github.com/cecchisandrone/smarthome-server/scheduler"
+	"github.com/cecchisandrone/smarthome-server/slack"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"gopkg.in/resty.v1"
@@ -17,6 +18,7 @@ type Raspsonar struct {
 	ScheduledMeasurements map[time.Time]float64
 	SchedulerManager      *scheduler.SchedulerManager `inject:""`
 	ConfigurationService  *Configuration              `inject:""`
+	NotificationService   *Notification               `inject:""`
 	MaxMeasurements       int
 }
 
@@ -58,6 +60,10 @@ func (r *Raspsonar) ScheduledMeasurement() {
 		value, _ := strconv.ParseFloat(resp.String(), 64)
 		r.ScheduledMeasurements[time.Now()] = value
 		log.Info("Scheduled raspsonar measurement:", value)
+
+		if value < configuration.Raspsonar.DistanceThreshold {
+			r.NotificationService.SendSlackMessage(slack.AlarmChannel, "Warning! Distance threshold has been trespassed. Value: "+strconv.FormatFloat(value, 'f', 2, 64))
+		}
 
 		// Remove old measurements
 		index := 0

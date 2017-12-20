@@ -8,7 +8,7 @@ type Raspsonar struct {
 	Port                          uint    `binding:"required"`
 	SonarName                     string  `binding:"required"`
 	RelayName                     string  `binding:"required"`
-	DistanceThreshold             float32 `binding:"required"`
-	AutoPowerOffDistanceThreshold float32 `binding:"required"`
+	DistanceThreshold             float64 `binding:"required"`
+	AutoPowerOffDistanceThreshold float64 `binding:"required"`
 	ConfigurationID               uint
 }

@@ -3,8 +3,8 @@ database:
   port: 3306
   showQueries: false
 temperature:
-  maxMeasurements: 72
+  maxMeasurements: 48
   intervalSeconds: 3600
 raspsonar:
-  maxMeasurements: 72
+  maxMeasurements: 48
   intervalSeconds: 3600
