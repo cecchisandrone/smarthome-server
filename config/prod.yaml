@@ -1,10 +1,12 @@
+alarm:
+  locationChangeCheckIntervalSeconds: 60
 database:
   host: smarthome-db
   port: 3306
   showQueries: false
 temperature:
-  maxMeasurements: 48
-  intervalSeconds: 3600
+  maxMeasurements: 24
+  intervalSeconds: 7200
 raspsonar:
-  maxMeasurements: 48
-  intervalSeconds: 3600
+  maxMeasurements: 24
+  intervalSeconds: 7200

@@ -8,6 +8,7 @@ import (
 	"github.com/cecchisandrone/smarthome-server/service"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
+	"strconv"
 )
 
 type Camera struct {
@@ -25,6 +26,7 @@ func (c Camera) InitRoutes() {
 	camera.POST("/", c.createCamera)
 	camera.GET("/:cameraId", c.getCamera)
 	camera.PUT("/:cameraId", c.updateCamera)
+	camera.PUT("/:cameraId/toggle-alarm", c.toggleCameraAlarm)
 	camera.DELETE("/:cameraId", c.deleteCamera)
 }
 
@@ -109,6 +111,36 @@ func (c Camera) deleteCamera(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, "Deleted")
+}
+
+func (c Camera) toggleCameraAlarm(ctx *gin.Context) {
+
+	configurationID := ctx.Param("id")
+	cameraID := ctx.Param("cameraId")
+	cameraIDInt, err := strconv.Atoi(cameraID)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "message": err.Error()})
+		return
+	}
+	statusString := ctx.DefaultQuery("status", "1")
+	status, err := strconv.Atoi(statusString)
+
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "message": err.Error()})
+		return
+	}
+
+	if configuration := c.checkConfiguration(configurationID, ctx); configuration == nil {
+		return
+	}
+
+	err = c.CameraService.ToggleCameraAlarm(uint(cameraIDInt), status)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"status": http.StatusInternalServerError, "message": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, "Done")
 }
 
 func (c Camera) checkConfiguration(configurationID string, ctx *gin.Context) *model.Configuration {

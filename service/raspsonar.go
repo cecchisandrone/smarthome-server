@@ -15,17 +15,20 @@ import (
 )
 
 type Raspsonar struct {
-	ScheduledMeasurements map[time.Time]float64
-	SchedulerManager      *scheduler.SchedulerManager `inject:""`
-	ConfigurationService  *Configuration              `inject:""`
-	NotificationService   *Notification               `inject:""`
-	MaxMeasurements       int
+	ScheduledMeasurements    map[time.Time]float64
+	SchedulerManager         *scheduler.SchedulerManager `inject:""`
+	ConfigurationService     *Configuration              `inject:""`
+	NotificationService      *Notification               `inject:""`
+	MaxMeasurements          int
+	RelayStatus              bool
+	RelayActivationTimestamp time.Time
 }
 
 func (r *Raspsonar) Init() {
 	r.ScheduledMeasurements = make(map[time.Time]float64)
 	r.SchedulerManager.ScheduleExecution(uint64(viper.GetInt("raspsonar.intervalSeconds")), r.ScheduledMeasurement)
 	r.MaxMeasurements = viper.GetInt("raspsonar.maxMeasurements")
+	r.RelayStatus = false
 }
 
 func (r *Raspsonar) GetLast(configuration model.Configuration) (time.Time, float64, error) {
@@ -44,6 +47,10 @@ func (r *Raspsonar) ToggleRelay(configuration model.Configuration, status int) e
 	if err != nil {
 		log.Error("Unable to toggle relay. Reason:", err)
 		return err
+	}
+	r.RelayStatus = !(status == 0)
+	if r.RelayStatus == true {
+		r.RelayActivationTimestamp = time.Now()
 	}
 	return nil
 }

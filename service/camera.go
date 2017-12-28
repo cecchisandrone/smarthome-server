@@ -7,6 +7,7 @@ import (
 
 	"github.com/cecchisandrone/smarthome-server/model"
 	"github.com/jinzhu/gorm"
+	"gopkg.in/resty.v1"
 )
 
 type Camera struct {
@@ -59,6 +60,22 @@ func (c Camera) DeleteCamera(cameraID string) error {
 	}
 	c.Db.Unscoped().Delete(&camera)
 	return nil
+}
+
+func (c Camera) ToggleCameraAlarm(cameraID uint, status int) error {
+	var camera model.Camera
+	c.Db.First(&camera, cameraID)
+	if camera.ID == 0 {
+		return errors.New("Can't find Camera with ID " + string(cameraID))
+	}
+
+	if camera.Type != model.Foscam {
+		return errors.New("Can't toggle alarm on camera type " + string(camera.Type))
+	}
+
+	url := fmt.Sprintf("http://%s:%d/set_alarm.cgi?mail=%d&user=%s&pwd=%s", camera.Host, camera.Port, status, camera.Username, camera.Password)
+	_, err := resty.R().Get(url)
+	return err
 }
 
 func generateUrl(camera *model.Camera) {
