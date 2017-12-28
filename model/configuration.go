@@ -10,5 +10,6 @@ type Configuration struct {
 	Raspsonar   Raspsonar
 	Temperature Temperature
 	Slack       Slack
+	Alarm       Alarm
 	Cameras     []Camera
 }

@@ -7,6 +7,7 @@ import (
 
 const apiUrl = "https://slack.com/api/"
 const channelListSuffix = "channels.list"
+const channelHistorySuffix = "channels.history"
 const chatPostMessageSuffix = "chat.postMessage"
 const AlarmChannel = "alarm"
 
@@ -21,6 +22,23 @@ type Response struct {
 type ChannelListResponse struct {
 	*Response
 	Channels []Channel `json:"channels"`
+}
+
+type ChannelHistoryResponse struct {
+	*Response
+	Messages []Message `json:"messages"`
+	HasMore  bool      `json:"has_more"`
+}
+
+type Message struct {
+	Username    string       `json:"username"`
+	Text        string       `json:"text"`
+	Attachments []Attachment `json:"attachments"`
+}
+
+type Attachment struct {
+	Title string `json:"title"`
+	Text  string `json:"text"`
 }
 
 type Channel struct {
@@ -49,4 +67,19 @@ func (s *Client) SendMessageToChannel(channel string, message string) error {
 		}
 	}
 	return err
+}
+
+func (s *Client) GetLocationChangeChannelHistory(channel string) (*ChannelHistoryResponse, error) {
+
+	channelHistoryResponse := ChannelHistoryResponse{}
+	channelList, err := s.GetChannelList()
+	if err == nil {
+		for _, c := range channelList.Channels {
+			if c.Name == channel {
+				_, err := resty.R().SetResult(&channelHistoryResponse).SetQueryParams(map[string]string{"token": s.Configuration.Token, "channel": c.Id, "scope": channelHistorySuffix}).Get(apiUrl + channelHistorySuffix)
+				return &channelHistoryResponse, err
+			}
+		}
+	}
+	return nil, err
 }

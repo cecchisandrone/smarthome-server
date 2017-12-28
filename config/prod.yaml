@@ -1,5 +1,6 @@
 alarm:
-  locationChangeCheckIntervalSeconds: 60
+  locationChangeCheckIntervalSeconds: 120
+  automaticAlarmToggleIntervalSeconds: 240
 database:
   host: smarthome-db
   port: 3306

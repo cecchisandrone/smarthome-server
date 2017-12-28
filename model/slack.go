@@ -1,6 +1,9 @@
 package model
 
-import "github.com/jinzhu/gorm"
+import (
+	"github.com/jinzhu/gorm"
+	"strings"
+)
 
 type Slack struct {
 	gorm.Model
@@ -9,4 +12,8 @@ type Slack struct {
 	Token                 string `binding:"required"`
 	LocationChangeUsers   string `binding:"required"`
 	ConfigurationID       uint
+}
+
+func (s Slack) GetLocationChangeUsersArray() []string {
+	return strings.Split(s.LocationChangeUsers, ";")
 }
