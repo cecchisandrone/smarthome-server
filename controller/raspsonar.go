@@ -52,8 +52,8 @@ func (r Raspsonar) getMeasurements(ctx *gin.Context) {
 func (r Raspsonar) toggleRelay(ctx *gin.Context) {
 
 	configurationID := ctx.Param("id")
-	relayStatus := ctx.DefaultQuery("relayStatus", "1")
-	status, err := strconv.Atoi(relayStatus)
+	relayStatus := ctx.DefaultQuery("relayStatus", "true")
+	status, err := strconv.ParseBool(relayStatus)
 	if err == nil {
 		configuration := r.checkConfiguration(configurationID, ctx)
 		if configuration == nil {

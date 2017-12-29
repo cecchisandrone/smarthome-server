@@ -22,13 +22,16 @@ type Raspsonar struct {
 	MaxMeasurements          int
 	RelayStatus              bool
 	RelayActivationTimestamp time.Time
+	Configuration            model.Configuration
 }
 
 func (r *Raspsonar) Init() {
 	r.ScheduledMeasurements = make(map[time.Time]float64)
 	r.SchedulerManager.ScheduleExecution(uint64(viper.GetInt("raspsonar.intervalSeconds")), r.ScheduledMeasurement)
+	r.SchedulerManager.ScheduleExecution(uint64(viper.GetInt("raspsonar.autoToggleRelayIntervalSeconds")), r.autoToggleRelay)
 	r.MaxMeasurements = viper.GetInt("raspsonar.maxMeasurements")
 	r.RelayStatus = false
+	r.Configuration = r.ConfigurationService.GetCurrent()
 }
 
 func (r *Raspsonar) GetLast(configuration model.Configuration) (time.Time, float64, error) {
@@ -42,13 +45,17 @@ func (r *Raspsonar) GetLast(configuration model.Configuration) (time.Time, float
 	}
 }
 
-func (r *Raspsonar) ToggleRelay(configuration model.Configuration, status int) error {
-	_, err := resty.R().Put(getToggleRelayUrl(configuration, status))
+func (r *Raspsonar) ToggleRelay(configuration model.Configuration, status bool) error {
+	statusInt := 1
+	if status {
+		statusInt = 0
+	}
+	_, err := resty.R().Put(getToggleRelayUrl(configuration, statusInt))
 	if err != nil {
 		log.Error("Unable to toggle relay. Reason:", err)
 		return err
 	}
-	r.RelayStatus = !(status == 0)
+	r.RelayStatus = status
 	if r.RelayStatus == true {
 		r.RelayActivationTimestamp = time.Now()
 	}
@@ -61,14 +68,13 @@ func (r *Raspsonar) GetScheduledMeasurements() *map[time.Time]float64 {
 
 func (r *Raspsonar) ScheduledMeasurement() {
 
-	configuration := r.ConfigurationService.GetCurrent()
-	resp, err := resty.R().Get(getDistanceUrl(configuration))
+	resp, err := resty.R().Get(getDistanceUrl(r.Configuration))
 	if err == nil {
 		value, _ := strconv.ParseFloat(resp.String(), 64)
 		r.ScheduledMeasurements[time.Now()] = value
 		log.Info("Scheduled raspsonar measurement:", value)
 
-		if value < configuration.Raspsonar.DistanceThreshold {
+		if value < r.Configuration.Raspsonar.DistanceThreshold {
 			r.NotificationService.SendSlackMessage(slack.AlarmChannel, "Warning! Distance threshold has been trespassed. Value: "+strconv.FormatFloat(value, 'f', 2, 64))
 		}
 
@@ -101,4 +107,24 @@ func getToggleRelayUrl(configuration model.Configuration, status int) string {
 	port := configuration.Raspsonar.Port
 	name := configuration.Raspsonar.RelayName
 	return fmt.Sprintf("http://%s:%d/devices/relay/%s?status=%d", host, port, name, status)
+}
+
+func (r *Raspsonar) autoToggleRelay() {
+	if r.RelayStatus {
+		_, distance, err := r.GetLast(r.Configuration)
+		if err == nil {
+
+			log.Info("Checking if relay should be put off. Distance: " + strconv.FormatFloat(distance, 'f', 2, 64))
+
+			// Toggle relay off is threshold is trespassed
+			if distance > r.Configuration.Raspsonar.AutoPowerOffDistanceThreshold {
+				log.Info("Toggling relay off...threshold is trespassed")
+				r.ToggleRelay(r.Configuration, false)
+				r.NotificationService.SendSlackMessage(slack.AlarmChannel, "Auto power off distance threshold ("+strconv.FormatFloat(r.Configuration.Raspsonar.AutoPowerOffDistanceThreshold, 'f', 2, 64)+") trespassed. Powering off the pump")
+
+			}
+		} else {
+			log.Error("Error while getting auto power off measurement. Reason: ", err.Error())
+		}
+	}
 }

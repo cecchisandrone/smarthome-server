@@ -11,3 +11,4 @@ temperature:
 raspsonar:
   maxMeasurements: 24
   intervalSeconds: 600
+  autoToggleRelayIntervalSeconds: 30

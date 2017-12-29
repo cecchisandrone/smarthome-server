@@ -68,15 +68,17 @@ func (a *Alarm) automaticAlarmToggle() {
 
 		log.Info("Automatic alarm activation is enabled. Users status: ", a.LocationStatus)
 
-		for _, status := range a.LocationStatus {
-			if status == Entered {
-				// At least one entered, disable alarm
-				a.ToggleAlarm(a.configuration, 0)
-				return
+		if len(a.LocationStatus) > 0 {
+			for _, status := range a.LocationStatus {
+				if status == Entered {
+					// At least one entered, disable alarm
+					a.ToggleAlarm(a.configuration, 0)
+					return
+				}
 			}
-		}
 
-		a.ToggleAlarm(a.configuration, 1)
+			a.ToggleAlarm(a.configuration, 1)
+		}
 	}
 }
 
@@ -104,5 +106,7 @@ func (a *Alarm) checkLocationStatus() {
 				break
 			}
 		}
+	} else {
+		log.Error("Error while checking location status. Reason: ", err.Error())
 	}
 }
