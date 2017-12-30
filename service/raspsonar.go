@@ -12,6 +12,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"gopkg.in/resty.v1"
+	"math"
 )
 
 type Raspsonar struct {
@@ -23,6 +24,7 @@ type Raspsonar struct {
 	RelayStatus              bool
 	RelayActivationTimestamp time.Time
 	Configuration            model.Configuration
+	lastMeasure              float64
 }
 
 func (r *Raspsonar) Init() {
@@ -38,7 +40,20 @@ func (r *Raspsonar) GetLast(configuration model.Configuration) (time.Time, float
 	resp, err := resty.R().Get(getDistanceUrl(configuration))
 	if err == nil {
 		value, _ := strconv.ParseFloat(resp.String(), 64)
-		return time.Now(), value, nil
+
+		// Average value with previous (reduce noise)
+		if r.lastMeasure != 0 {
+			// Skip values too distant from previous, should be an error
+			if math.Abs(value-r.lastMeasure) > 5 {
+				log.Warn("Ignoring raspsonar value " + strconv.FormatFloat(value, 'f', 2, 64))
+				value = r.lastMeasure
+			}
+			r.lastMeasure = value*0.3 + r.lastMeasure*0.7
+		} else {
+			r.lastMeasure = value
+		}
+
+		return time.Now(), r.lastMeasure, nil
 	} else {
 		log.Error("Unable to fetch raspsonar measurement. Reason:", err)
 		return time.Now(), 0, errors.New("Unable to fetch raspsonar measurement")
@@ -68,11 +83,10 @@ func (r *Raspsonar) GetScheduledMeasurements() *map[time.Time]float64 {
 
 func (r *Raspsonar) ScheduledMeasurement() {
 
-	resp, err := resty.R().Get(getDistanceUrl(r.Configuration))
+	timestamp, value, err := r.GetLast(r.Configuration)
 	if err == nil {
-		value, _ := strconv.ParseFloat(resp.String(), 64)
-		r.ScheduledMeasurements[time.Now()] = value
-		log.Info("Scheduled raspsonar measurement:", value)
+		r.ScheduledMeasurements[timestamp] = value
+		log.Info("Scheduled raspsonar measurement: " + strconv.FormatFloat(value, 'f', 2, 64))
 
 		if value < r.Configuration.Raspsonar.DistanceThreshold {
 			r.NotificationService.SendSlackMessage(slack.AlarmChannel, "Warning! Distance threshold has been trespassed. Value: "+strconv.FormatFloat(value, 'f', 2, 64))
