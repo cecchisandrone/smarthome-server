@@ -23,7 +23,6 @@ type Raspsonar struct {
 	MaxMeasurements          int
 	RelayStatus              bool
 	RelayActivationTimestamp time.Time
-	Configuration            model.Configuration
 	lastMeasure              float64
 }
 
@@ -33,7 +32,6 @@ func (r *Raspsonar) Init() {
 	r.SchedulerManager.ScheduleExecution(uint64(viper.GetInt("raspsonar.autoToggleRelayIntervalSeconds")), r.autoToggleRelay)
 	r.MaxMeasurements = viper.GetInt("raspsonar.maxMeasurements")
 	r.RelayStatus = false
-	r.Configuration = r.ConfigurationService.GetCurrent()
 }
 
 func (r *Raspsonar) GetLast(configuration model.Configuration) (time.Time, float64, error) {
@@ -83,12 +81,13 @@ func (r *Raspsonar) GetScheduledMeasurements() *map[time.Time]float64 {
 
 func (r *Raspsonar) ScheduledMeasurement() {
 
-	timestamp, value, err := r.GetLast(r.Configuration)
+	configuration := r.ConfigurationService.GetCurrent()
+	timestamp, value, err := r.GetLast(configuration)
 	if err == nil {
 		r.ScheduledMeasurements[timestamp] = value
 		log.Info("Scheduled raspsonar measurement: " + strconv.FormatFloat(value, 'f', 2, 64))
 
-		if value < r.Configuration.Raspsonar.DistanceThreshold {
+		if value < configuration.Raspsonar.DistanceThreshold {
 			r.NotificationService.SendSlackMessage(slack.AlarmChannel, "Warning! Distance threshold has been trespassed. Value: "+strconv.FormatFloat(value, 'f', 2, 64))
 		}
 
@@ -124,17 +123,19 @@ func getToggleRelayUrl(configuration model.Configuration, status int) string {
 }
 
 func (r *Raspsonar) autoToggleRelay() {
+
+	configuration := r.ConfigurationService.GetCurrent()
 	if r.RelayStatus {
-		_, distance, err := r.GetLast(r.Configuration)
+		_, distance, err := r.GetLast(configuration)
 		if err == nil {
 
 			log.Info("Checking if relay should be put off. Distance: " + strconv.FormatFloat(distance, 'f', 2, 64))
 
 			// Toggle relay off is threshold is trespassed
-			if distance > r.Configuration.Raspsonar.AutoPowerOffDistanceThreshold {
+			if distance > configuration.Raspsonar.AutoPowerOffDistanceThreshold {
 				log.Info("Toggling relay off...threshold is trespassed")
-				r.ToggleRelay(r.Configuration, false)
-				r.NotificationService.SendSlackMessage(slack.AlarmChannel, "Auto power off distance threshold ("+strconv.FormatFloat(r.Configuration.Raspsonar.AutoPowerOffDistanceThreshold, 'f', 2, 64)+") trespassed. Powering off the pump")
+				r.ToggleRelay(configuration, false)
+				r.NotificationService.SendSlackMessage(slack.AlarmChannel, "Auto power off distance threshold ("+strconv.FormatFloat(configuration.Raspsonar.AutoPowerOffDistanceThreshold, 'f', 2, 64)+") trespassed. Powering off the pump")
 
 			}
 		} else {

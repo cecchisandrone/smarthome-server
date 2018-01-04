@@ -25,15 +25,14 @@ type Alarm struct {
 	SlackClient          slack.Client
 	AlarmStatus          bool
 	Cameras              []string
-	configuration        model.Configuration
 	LocationStatus       map[string]LocationStatus
 }
 
 func (a *Alarm) Init() {
 	a.SchedulerManager.ScheduleExecution(uint64(viper.GetInt("alarm.locationChangeCheckIntervalSeconds")), a.checkLocationStatus)
 	a.SchedulerManager.ScheduleExecution(uint64(viper.GetInt("alarm.automaticAlarmToggleIntervalSeconds")), a.automaticAlarmToggle)
-	a.configuration = a.ConfigurationService.GetCurrent()
-	a.SlackClient = slack.Client{a.configuration.Slack}
+	configuration := a.ConfigurationService.GetCurrent()
+	a.SlackClient = slack.Client{configuration.Slack}
 	a.AlarmStatus = false
 }
 
@@ -64,7 +63,8 @@ func (a *Alarm) ToggleAlarm(configuration model.Configuration, status int) ([]st
 
 func (a *Alarm) automaticAlarmToggle() {
 
-	if a.configuration.Alarm.AutomaticAlarmActivation {
+	configuration := a.ConfigurationService.GetCurrent()
+	if configuration.Alarm.AutomaticAlarmActivation {
 
 		log.Info("Automatic alarm activation is enabled. Users status: ", a.LocationStatus)
 
@@ -72,12 +72,12 @@ func (a *Alarm) automaticAlarmToggle() {
 			for _, status := range a.LocationStatus {
 				if status == Entered {
 					// At least one entered, disable alarm
-					a.ToggleAlarm(a.configuration, 0)
+					a.ToggleAlarm(configuration, 0)
 					return
 				}
 			}
 
-			a.ToggleAlarm(a.configuration, 1)
+			a.ToggleAlarm(configuration, 1)
 		}
 	}
 }
@@ -86,9 +86,11 @@ func (a *Alarm) checkLocationStatus() {
 
 	a.LocationStatus = make(map[string]LocationStatus)
 
-	users := a.configuration.Slack.GetLocationChangeUsersArray()
+	configuration := a.ConfigurationService.GetCurrent()
 
-	history, err := a.SlackClient.GetLocationChangeChannelHistory(a.configuration.Slack.LocationChangeChannel)
+	users := configuration.Slack.GetLocationChangeUsersArray()
+
+	history, err := a.SlackClient.GetLocationChangeChannelHistory(configuration.Slack.LocationChangeChannel)
 	if err == nil {
 		for _, message := range history.Messages {
 			if len(message.Attachments) != 0 {
