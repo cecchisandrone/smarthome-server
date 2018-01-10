@@ -2,12 +2,13 @@ package service
 
 import (
 	"errors"
+	"strings"
+
 	"github.com/cecchisandrone/smarthome-server/model"
 	"github.com/cecchisandrone/smarthome-server/scheduler"
 	"github.com/cecchisandrone/smarthome-server/slack"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
-	"strings"
 )
 
 type LocationStatus string
@@ -91,7 +92,7 @@ func (a *Alarm) checkLocationStatus() {
 	users := configuration.Slack.GetLocationChangeUsersArray()
 
 	history, err := a.SlackClient.GetLocationChangeChannelHistory(configuration.Slack.LocationChangeChannel)
-	if err == nil {
+	if err == nil && history != nil {
 		for _, message := range history.Messages {
 			if len(message.Attachments) != 0 {
 				text := message.Attachments[0].Text
