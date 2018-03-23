@@ -24,7 +24,7 @@ type Raspsonar struct {
 	RelayStatus              bool
 	RelayActivationTimestamp time.Time
 	lastMeasure              float64
-	wrongMeasurementThreshold int 
+	wrongMeasurementThreshold float64 
 }
 
 func (r *Raspsonar) Init() {
@@ -33,7 +33,7 @@ func (r *Raspsonar) Init() {
 	r.SchedulerManager.ScheduleExecution(uint64(viper.GetInt("raspsonar.autoToggleRelayIntervalSeconds")), r.autoToggleRelay)
 	r.MaxMeasurements = viper.GetInt("raspsonar.maxMeasurements")
 	r.RelayStatus = false
-	r.wrongMeasurementThreshold = viper.GetInt("raspsonar.wrongMeasurementThreshold")
+	r.wrongMeasurementThreshold = float64(viper.GetInt("raspsonar.wrongMeasurementThreshold"))
 }
 
 func (r *Raspsonar) GetLast(configuration model.Configuration) (time.Time, float64, error) {
