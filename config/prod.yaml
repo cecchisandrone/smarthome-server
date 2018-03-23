@@ -12,3 +12,4 @@ raspsonar:
   maxMeasurements: 24
   intervalSeconds: 7200
   autoToggleRelayIntervalSeconds: 30
+  wrongMeasurementThreshold: 10

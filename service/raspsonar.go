@@ -24,6 +24,7 @@ type Raspsonar struct {
 	RelayStatus              bool
 	RelayActivationTimestamp time.Time
 	lastMeasure              float64
+	wrongMeasurementThreshold int 
 }
 
 func (r *Raspsonar) Init() {
@@ -32,6 +33,7 @@ func (r *Raspsonar) Init() {
 	r.SchedulerManager.ScheduleExecution(uint64(viper.GetInt("raspsonar.autoToggleRelayIntervalSeconds")), r.autoToggleRelay)
 	r.MaxMeasurements = viper.GetInt("raspsonar.maxMeasurements")
 	r.RelayStatus = false
+	r.wrongMeasurementThreshold = viper.GetInt("raspsonar.wrongMeasurementThreshold")
 }
 
 func (r *Raspsonar) GetLast(configuration model.Configuration) (time.Time, float64, error) {
@@ -42,7 +44,7 @@ func (r *Raspsonar) GetLast(configuration model.Configuration) (time.Time, float
 		// Average value with previous (reduce noise)
 		if r.lastMeasure != 0 {
 			// Skip values too distant from previous, should be an error
-			if math.Abs(value-r.lastMeasure) > 5 {
+			if math.Abs(value-r.lastMeasure) > r.wrongMeasurementThreshold {
 				log.Warn("Ignoring raspsonar value " + strconv.FormatFloat(value, 'f', 2, 64))
 				value = r.lastMeasure
 			}
