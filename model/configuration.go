@@ -12,4 +12,5 @@ type Configuration struct {
 	Slack       Slack
 	Alarm       Alarm
 	Cameras     []Camera
+	WellPumps   []WellPump
 }
