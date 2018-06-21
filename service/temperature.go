@@ -45,7 +45,7 @@ func (t *Temperature) ScheduledMeasurement() {
 	if err == nil {
 		value, _ := strconv.ParseFloat(resp.String(), 64)
 		t.ScheduledMeasurements[time.Now()] = value
-		log.Info("Scheduled temperature measurement:", value)
+		log.Info("Scheduled temperature measurement: ", value)
 
 		// Remove old measurements
 		index := 0

@@ -148,15 +148,17 @@ func (w WellPump) toggleRelay(ctx *gin.Context) {
 	}
 
 	status := ctx.DefaultQuery("status", "0")
-	statusInt, err := strconv.Atoi(status)
+	manuallyActivated := ctx.DefaultQuery("manuallyActivated", "false")
+	manuallyActivatedBool, err1 := strconv.ParseBool(manuallyActivated)
+	statusInt, err2 := strconv.Atoi(status)
 
-	if err == nil {
+	if err1 == nil && err2 == nil {
 
 		wellPump, err := w.WellPumpService.GetWellPump(wellPumpId)
 
 		if err == nil {
 
-			err = w.WellPumpService.ToggleRelay(wellPump, statusInt)
+			err = w.WellPumpService.ToggleRelay(wellPump, statusInt, manuallyActivatedBool)
 
 			if err == nil {
 				ctx.JSON(http.StatusOK, gin.H{"status": statusInt})
@@ -167,7 +169,7 @@ func (w WellPump) toggleRelay(ctx *gin.Context) {
 			ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		}
 	} else {
-		ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": "Unable to parse query parameters"})
 	}
 }
 

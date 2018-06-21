@@ -13,3 +13,5 @@ raspsonar:
   intervalSeconds: 7200
   autoToggleRelayIntervalSeconds: 30
   wrongMeasurementThreshold: 10
+well-pump:
+  intervalSeconds: 300
