@@ -1,4 +1,4 @@
-FROM arm32v6/alpine:3.7
+FROM resin/raspberry-pi-alpine:3.7
 RUN apk add --no-cache tzdata
 ADD smarthome-server /
 ADD config /config
