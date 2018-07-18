@@ -13,4 +13,5 @@ type Configuration struct {
 	Alarm       Alarm
 	Cameras     []Camera
 	WellPumps   []WellPump
+	RainGauge   RainGauge
 }

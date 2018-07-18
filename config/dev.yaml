@@ -7,11 +7,14 @@ database:
   showQueries: true
 temperature:
   maxMeasurements: 24
-  intervalSeconds: 600
+  intervalSeconds: 30
 raspsonar:
   maxMeasurements: 24
-  intervalSeconds: 600
+  intervalSeconds: 30
   autoToggleRelayIntervalSeconds: 30
   wrongMeasurementThreshold: 10
 well-pump:
   intervalSeconds: 30
+rain-gauge:
+  intervalSeconds: 10
+  maxMeasurements: 24

@@ -18,20 +18,20 @@ func (c *Configuration) Init() {
 func (c *Configuration) GetConfigurations() []model.Configuration {
 
 	var configurations []model.Configuration
-	c.Db.Preload("Profile").Preload("Cameras").Preload("Gate").Preload("Temperature").Preload("Slack").Preload("Raspsonar").Preload("Alarm").Preload("WellPumps").Find(&configurations)
+	c.Db.Preload("Profile").Preload("Cameras").Preload("Gate").Preload("Temperature").Preload("Slack").Preload("Raspsonar").Preload("Alarm").Preload("WellPumps").Preload("RainGauge").Find(&configurations)
 	return configurations
 }
 
 func (c *Configuration) GetCurrent() model.Configuration {
 	var configuration model.Configuration
-	c.Db.Preload("Profile").Preload("Cameras").Preload("Gate").Preload("Temperature").Preload("Slack").Preload("Raspsonar").Preload("Alarm").Preload("WellPumps").Last(&configuration)
+	c.Db.Preload("Profile").Preload("Cameras").Preload("Gate").Preload("Temperature").Preload("Slack").Preload("Raspsonar").Preload("Alarm").Preload("WellPumps").Preload("Cameras").Preload("RainGauge").Last(&configuration)
 	return configuration
 }
 
 func (c *Configuration) GetConfiguration(configurationID string) (*model.Configuration, error) {
 
 	var configuration model.Configuration
-	c.Db.Preload("Profile").Preload("Cameras").Preload("Gate").Preload("Temperature").Preload("Slack").Preload("Raspsonar").Preload("Alarm").Preload("WellPumps").First(&configuration, configurationID)
+	c.Db.Preload("Profile").Preload("Cameras").Preload("Gate").Preload("Temperature").Preload("Slack").Preload("Raspsonar").Preload("Alarm").Preload("WellPumps").Preload("Cameras").Preload("RainGauge").First(&configuration, configurationID)
 	if configuration.ID == 0 {
 		return nil, errors.New("Can't find configuration with ID " + string(configurationID))
 	}

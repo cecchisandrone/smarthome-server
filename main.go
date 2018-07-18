@@ -37,8 +37,8 @@ func main() {
 	// Retries are configured per client
 	resty.DefaultClient.SetTimeout(10 * time.Second)
 
-	controllers := []controller.Controller{&controller.HealthCheck{}, &controller.Profile{}, &controller.Configuration{}, &controller.Camera{}, &controller.Authentication{}, &controller.Temperature{}, &controller.Raspsonar{}, &controller.Gate{}, &controller.Notification{}, &controller.Alarm{}, &controller.WellPump{}}
-	services := []service.Service{&service.Profile{}, &service.Configuration{}, &service.Camera{}, &service.Temperature{}, &service.Raspsonar{}, &service.Gate{}, &service.Notification{}, &service.Alarm{}, &service.WellPump{}}
+	controllers := []controller.Controller{&controller.HealthCheck{}, &controller.Profile{}, &controller.Configuration{}, &controller.Camera{}, &controller.Authentication{}, &controller.Temperature{}, &controller.Raspsonar{}, &controller.Gate{}, &controller.Notification{}, &controller.Alarm{}, &controller.WellPump{}, &controller.RainGauge{}}
+	services := []service.Service{&service.Profile{}, &service.Configuration{}, &service.Camera{}, &service.Temperature{}, &service.Raspsonar{}, &service.Gate{}, &service.Notification{}, &service.Alarm{}, &service.WellPump{}, &service.RainGauge{}}
 
 	for _, c := range controllers {
 		g.Provide(&inject.Object{Value: c})

@@ -6,6 +6,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"gopkg.in/resty.v1"
+	"sort"
 	"strconv"
 	"time"
 )
@@ -48,11 +49,14 @@ func (t *Temperature) ScheduledMeasurement() {
 		log.Info("Scheduled temperature measurement: ", value)
 
 		// Remove old measurements
-		index := 0
 		if len(t.ScheduledMeasurements) > t.MaxMeasurements {
+			keys := make([]time.Time, 0)
 			for key := range t.ScheduledMeasurements {
-				index++
-				if index >= t.MaxMeasurements {
+				keys = append(keys, key)
+			}
+			sort.Slice(keys, func(i, j int) bool { return keys[i].Before(keys[j]) })
+			for _, key := range keys {
+				if len(t.ScheduledMeasurements) > t.MaxMeasurements {
 					delete(t.ScheduledMeasurements, key)
 				}
 			}

@@ -13,18 +13,19 @@ import (
 	"github.com/spf13/viper"
 	"gopkg.in/resty.v1"
 	"math"
+	"sort"
 )
 
 type Raspsonar struct {
-	ScheduledMeasurements    map[time.Time]float64
-	SchedulerManager         *scheduler.SchedulerManager `inject:""`
-	ConfigurationService     *Configuration              `inject:""`
-	NotificationService      *Notification               `inject:""`
-	MaxMeasurements          int
-	RelayStatus              bool
-	RelayActivationTimestamp time.Time
-	lastMeasure              float64
-	wrongMeasurementThreshold float64 
+	ScheduledMeasurements     map[time.Time]float64
+	SchedulerManager          *scheduler.SchedulerManager `inject:""`
+	ConfigurationService      *Configuration              `inject:""`
+	NotificationService       *Notification               `inject:""`
+	MaxMeasurements           int
+	RelayStatus               bool
+	RelayActivationTimestamp  time.Time
+	lastMeasure               float64
+	wrongMeasurementThreshold float64
 }
 
 func (r *Raspsonar) Init() {
@@ -94,11 +95,14 @@ func (r *Raspsonar) ScheduledMeasurement() {
 		}
 
 		// Remove old measurements
-		index := 0
 		if len(r.ScheduledMeasurements) > r.MaxMeasurements {
+			keys := make([]time.Time, 0)
 			for key := range r.ScheduledMeasurements {
-				index++
-				if index >= r.MaxMeasurements {
+				keys = append(keys, key)
+			}
+			sort.Slice(keys, func(i, j int) bool { return keys[i].Before(keys[j]) })
+			for _, key := range keys {
+				if len(r.ScheduledMeasurements) > r.MaxMeasurements {
 					delete(r.ScheduledMeasurements, key)
 				}
 			}
