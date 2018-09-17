@@ -67,5 +67,5 @@ func (r *RainGauge) ScheduledMeasurement() {
 }
 
 func getRainGaugeUrl(configuration model.Configuration) string {
-	return "http://" + configuration.RainGauge.Host + ":" + strconv.FormatUint(uint64(configuration.RainGauge.Port), 10) + "/"
+	return "http://" + configuration.RainGauge.Host + ":" + strconv.FormatUint(uint64(configuration.RainGauge.Port), 10) + "/rainfall"
 }

@@ -16,5 +16,9 @@ raspsonar:
 well-pump:
   intervalSeconds: 30
 rain-gauge:
-  intervalSeconds: 10
+  intervalSeconds: 30
   maxMeasurements: 24
+humidity:
+  maxMeasurements: 24
+  intervalSeconds: 30
+  wrongMeasurementThreshold: 10

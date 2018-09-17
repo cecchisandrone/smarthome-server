@@ -18,3 +18,7 @@ well-pump:
 rain-gauge:
   intervalSeconds: 21600 # 6 hours
   maxMeasurements: 24
+humidity:
+  intervalSeconds: 7200 # 2 hours
+  maxMeasurements: 24
+  wrongMeasurementThreshold: 10
