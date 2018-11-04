@@ -25,6 +25,7 @@ func (h *Humidity) Init() {
 	h.ScheduledMeasurements = make(map[time.Time]float64)
 	h.SchedulerManager.ScheduleExecution(uint64(viper.GetInt("humidity.intervalSeconds")), h.ScheduledMeasurement)
 	h.MaxMeasurements = viper.GetInt("humidity.maxMeasurements")
+	h.wrongMeasurementThreshold = float64(viper.GetInt("humidity.wrongMeasurementThreshold"))
 }
 
 func (h *Humidity) GetLast(configuration model.Configuration) (time.Time, float64, error) {
