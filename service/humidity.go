@@ -40,7 +40,7 @@ func (h *Humidity) GetLast(configuration model.Configuration) (time.Time, float6
 				log.Warn("Ignoring humidity value " + strconv.FormatFloat(value, 'f', 2, 64))
 				value = h.lastMeasure
 			}
-			h.lastMeasure = value*0.3 + h.lastMeasure*0.7
+			h.lastMeasure = value*0.5 + h.lastMeasure*0.5
 		} else {
 			h.lastMeasure = value
 		}

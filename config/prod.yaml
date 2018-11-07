@@ -21,4 +21,4 @@ rain-gauge:
 humidity:
   intervalSeconds: 7200 # 2 hours
   maxMeasurements: 24
-  wrongMeasurementThreshold: 10
+  wrongMeasurementThreshold: 40
