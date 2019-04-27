@@ -20,6 +20,7 @@ type WellPump struct {
 	SchedulerManager     *scheduler.SchedulerManager `inject:""`
 	ConfigurationService *Configuration              `inject:""`
 	NotificationService  *Notification               `inject:""`
+	RainGauge            *RainGauge                  `inject:""`
 }
 
 func (w *WellPump) Init() {
@@ -107,6 +108,14 @@ func (w *WellPump) ScheduledActivation() {
 				w.NotificationService.SendSlackMessage(slack.AlarmChannel, "Unable to check status for well pump "+wellPump.Name)
 				continue
 			}
+
+			// Skip pump schedule considering rainfall
+			_, rainfall := w.RainGauge.GetLast24hTotal()
+			if rainfall >= wellPump.RainfallThreshold {
+				log.Info("Skipping well pump " + wellPump.Name + " schedule considering rainfall. Threshold: " + strconv.FormatFloat(wellPump.RainfallThreshold, 'f', 2, 64) + " - Rainfall: " + strconv.FormatFloat(rainfall, 'f', 2, 64))
+				continue
+			}
+
 			timeIntervals, err := utils.ParseTimeIntervals(wellPump.ActivationIntervals)
 			if err == nil {
 				powerOffMatches := 0

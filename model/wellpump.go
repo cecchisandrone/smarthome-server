@@ -10,5 +10,6 @@ type WellPump struct {
 	ActivationIntervals        string
 	AutomaticActivationEnabled bool
 	ManuallyActivated          bool
+	RainfallThreshold          float64
 	ConfigurationID            uint
 }

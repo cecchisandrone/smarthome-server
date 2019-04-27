@@ -2,7 +2,7 @@ alarm:
   locationChangeCheckIntervalSeconds: 30
   automaticAlarmToggleIntervalSeconds: 60
 database:
-  host: 192.168.99.100
+  host: default
   port: 4306
   showQueries: true
 temperature:
