@@ -1,8 +1,10 @@
 package service
 
 import (
+	"github.com/cecchisandrone/smarthome-server/influxdb"
 	"github.com/cecchisandrone/smarthome-server/model"
 	"github.com/cecchisandrone/smarthome-server/scheduler"
+	client "github.com/influxdata/influxdb1-client"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"gopkg.in/resty.v1"
@@ -16,6 +18,7 @@ type RainGauge struct {
 	SchedulerManager      *scheduler.SchedulerManager `inject:""`
 	ConfigurationService  *Configuration              `inject:""`
 	MaxMeasurements       int
+	InfluxdbClient  *influxdb.Client                  `inject:""`
 }
 
 func (r *RainGauge) Init() {
@@ -61,6 +64,19 @@ func (r *RainGauge) ScheduledMeasurement() {
 				}
 			}
 		}
+
+		// Send data to influxdb
+		point := client.Point{
+			Measurement: "rainfall",
+			Tags: map[string]string{
+				"location": "roof",
+			},
+			Fields: map[string]interface{}{
+				"value": value,
+			},
+			Time:      time.Now(),
+		}
+		r.InfluxdbClient.AddPoint(point)
 	} else {
 		log.Error("Unable to fetch rain gauge measurement. Reason:", err)
 	}

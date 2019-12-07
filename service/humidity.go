@@ -1,8 +1,10 @@
 package service
 
 import (
+	"github.com/cecchisandrone/smarthome-server/influxdb"
 	"github.com/cecchisandrone/smarthome-server/model"
 	"github.com/cecchisandrone/smarthome-server/scheduler"
+	client "github.com/influxdata/influxdb1-client"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"gopkg.in/resty.v1"
@@ -19,6 +21,7 @@ type Humidity struct {
 	MaxMeasurements           int
 	lastMeasure               float64
 	wrongMeasurementThreshold float64
+	InfluxdbClient  *influxdb.Client                  `inject:""`
 }
 
 func (h *Humidity) Init() {
@@ -78,6 +81,19 @@ func (h *Humidity) ScheduledMeasurement() {
 				}
 			}
 		}
+
+		// Send data to influxdb
+		point := client.Point{
+			Measurement: "humidity",
+			Tags: map[string]string{
+				"location": "gate",
+			},
+			Fields: map[string]interface{}{
+				"value": value,
+			},
+			Time:      time.Now(),
+		}
+		h.InfluxdbClient.AddPoint(point)
 	} else {
 		log.Error("Unable to fetch humidity measurement. Reason:", err)
 	}

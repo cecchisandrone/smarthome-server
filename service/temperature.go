@@ -1,8 +1,10 @@
 package service
 
 import (
+	"github.com/cecchisandrone/smarthome-server/influxdb"
 	"github.com/cecchisandrone/smarthome-server/model"
 	"github.com/cecchisandrone/smarthome-server/scheduler"
+	client "github.com/influxdata/influxdb1-client"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"gopkg.in/resty.v1"
@@ -16,6 +18,7 @@ type Temperature struct {
 	SchedulerManager      *scheduler.SchedulerManager `inject:""`
 	ConfigurationService  *Configuration              `inject:""`
 	MaxMeasurements       int
+	InfluxdbClient  *influxdb.Client                  `inject:""`
 }
 
 func (t *Temperature) Init() {
@@ -61,6 +64,20 @@ func (t *Temperature) ScheduledMeasurement() {
 				}
 			}
 		}
+
+		// Send data to influxdb
+		point := client.Point{
+			Measurement: "temperature",
+			Tags: map[string]string{
+				"location": "gate",
+			},
+			Fields: map[string]interface{}{
+				"value": value,
+			},
+			Time:      time.Now(),
+		}
+		t.InfluxdbClient.AddPoint(point)
+
 	} else {
 		log.Error("Unable to fetch temperature measurement. Reason:", err)
 	}

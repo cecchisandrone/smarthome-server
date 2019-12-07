@@ -5,6 +5,10 @@ database:
   host: smarthome-db
   port: 3306
   showQueries: false
+influxdb:
+  host: influxdb
+  port: 8086
+  database: smarthome
 temperature:
   maxMeasurements: 24
   intervalSeconds: 7200 # 2 hours

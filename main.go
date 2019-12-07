@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/cecchisandrone/smarthome-server/influxdb"
 	"os"
 
 	"github.com/cecchisandrone/smarthome-server/config"
@@ -37,6 +38,9 @@ func main() {
 	// Retries are configured per client
 	resty.DefaultClient.SetTimeout(10 * time.Second)
 
+	influxdbClient := &influxdb.Client{}
+	influxdbClient.Init()
+
 	controllers := []controller.Controller{&controller.HealthCheck{}, &controller.Profile{}, &controller.Configuration{}, &controller.Camera{}, &controller.Authentication{}, &controller.Temperature{}, &controller.Raspsonar{}, &controller.Gate{}, &controller.Notification{}, &controller.Alarm{}, &controller.WellPump{}, &controller.RainGauge{}, &controller.Humidity{}}
 	services := []service.Service{&service.Profile{}, &service.Configuration{}, &service.Camera{}, &service.Temperature{}, &service.Raspsonar{}, &service.Gate{}, &service.Notification{}, &service.Alarm{}, &service.WellPump{}, &service.RainGauge{}, &service.Humidity{}}
 
@@ -55,6 +59,7 @@ func main() {
 	g.Provide(&inject.Object{Value: router})
 	g.Provide(&inject.Object{Value: authMiddlewareFactory})
 	g.Provide(&inject.Object{Value: schedulerManager})
+	g.Provide(&inject.Object{Value: influxdbClient})
 
 	if err := g.Populate(); err != nil {
 		fmt.Fprintln(os.Stderr, err)
