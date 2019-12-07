@@ -10,4 +10,4 @@ WORKDIR /go/src/github.com/cecchisandrone/smarthome-server
 
 RUN dep ensure
 
-RUN go build -a -installsuffix cgo -o smarthome-server *.go
+RUN go build -a -installsuffix cgo -o smarthome-server main.go
