@@ -26,3 +26,5 @@ humidity:
   intervalSeconds: 7200 # 2 hours
   maxMeasurements: 24
   wrongMeasurementThreshold: 40
+inverter:
+  intervalSeconds: 1800 #30 minutes

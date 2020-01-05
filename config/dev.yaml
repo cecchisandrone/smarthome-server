@@ -25,4 +25,6 @@ rain-gauge:
 humidity:
   maxMeasurements: 24
   intervalSeconds: 30
-  wrongMeasurementThreshold: 10
+  wrongMeasurementThreshold: 20
+inverter:
+  intervalSeconds: 30

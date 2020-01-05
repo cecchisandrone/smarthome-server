@@ -15,4 +15,5 @@ type Configuration struct {
 	WellPumps   []WellPump
 	RainGauge   RainGauge
 	Humidity   Humidity
+	Inverters   []Inverter
 }
