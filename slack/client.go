@@ -6,8 +6,8 @@ import (
 )
 
 const apiUrl = "https://slack.com/api/"
-const channelListSuffix = "channels.list"
-const channelHistorySuffix = "channels.history"
+const channelListSuffix = "conversations.list"
+const channelHistorySuffix = "conversations.history"
 const chatPostMessageSuffix = "chat.postMessage"
 const AlarmChannel = "alarm"
 
