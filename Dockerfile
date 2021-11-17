@@ -1,4 +1,4 @@
-FROM golang
+FROM golang:1.15.15
 
 ENV GOOS=linux GOARCH=arm GOARM=6 CGO_ENABLED=0
 
