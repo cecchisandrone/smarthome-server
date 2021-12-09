@@ -9,8 +9,7 @@ import (
 	"time"
 )
 
-
-func main() {
+func test_influxdb() {
 
 	rand.Seed(42)
 
@@ -35,10 +34,10 @@ func main() {
 		Fields: map[string]interface{}{
 			"value": rand.Intn(1000),
 		},
-		Time:      t,
+		Time: t,
 	}
 
-	points := make([]client.Point,1)
+	points := make([]client.Point, 1)
 	points[0] = point
 
 	bps := client.BatchPoints{
