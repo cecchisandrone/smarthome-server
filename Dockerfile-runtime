@@ -1,6 +1,0 @@
-FROM resin/raspberry-pi-alpine:3.7
-RUN apk add --no-cache tzdata
-ADD smarthome-server /
-ADD config /config
-CMD ["/smarthome-server"]
-EXPOSE 8080
