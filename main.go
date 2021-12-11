@@ -41,8 +41,8 @@ func main() {
 	influxdbClient := &influxdb.Client{}
 	influxdbClient.Init()
 
-	controllers := []controller.Controller{&controller.HealthCheck{}, &controller.Profile{}, &controller.Configuration{}, &controller.Camera{}, &controller.Authentication{}, &controller.Temperature{}, &controller.Raspsonar{}, &controller.Gate{}, &controller.Notification{}, &controller.Alarm{}, &controller.WellPump{}, &controller.RainGauge{}, &controller.Humidity{},&controller.Inverter{}}
-	services := []service.Service{&service.Profile{}, &service.Configuration{}, &service.Camera{}, &service.Temperature{}, &service.Raspsonar{}, &service.Gate{}, &service.Notification{}, &service.Alarm{}, &service.WellPump{}, &service.RainGauge{}, &service.Humidity{}, &service.Inverter{}}
+	controllers := []controller.Controller{&controller.HealthCheck{}, &controller.Profile{}, &controller.Configuration{}, &controller.Camera{}, &controller.Authentication{}, &controller.Temperature{}, &controller.Raspsonar{}, &controller.Gate{}, &controller.Notification{}, &controller.Alarm{}, &controller.WellPump{}, &controller.RainGauge{}, &controller.Humidity{}, &controller.Inverter{}, &controller.Heating{}}
+	services := []service.Service{&service.Profile{}, &service.Configuration{}, &service.Camera{}, &service.Temperature{}, &service.Raspsonar{}, &service.Gate{}, &service.Notification{}, &service.Alarm{}, &service.WellPump{}, &service.RainGauge{}, &service.Humidity{}, &service.Inverter{}, &service.Heating{}}
 
 	for _, c := range controllers {
 		g.Provide(&inject.Object{Value: c})

@@ -9,6 +9,9 @@ influxdb:
   host: localhost
   port: 8086
   database: smarthome
+heating:
+  intervalSeconds: 30
+  maxMeasurements: 24
 temperature:
   maxMeasurements: 24
   intervalSeconds: 30
