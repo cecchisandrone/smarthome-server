@@ -14,6 +14,7 @@ type Configuration struct {
 	Cameras     []Camera
 	WellPumps   []WellPump
 	RainGauge   RainGauge
-	Humidity   Humidity
+	Humidity    Humidity
+	Heater      Heater
 	Inverters   []Inverter
 }

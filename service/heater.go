@@ -13,7 +13,7 @@ import (
 	"time"
 )
 
-type Heating struct {
+type Heater struct {
 	ScheduledMeasurements map[time.Time]float64
 	SchedulerManager      *scheduler.SchedulerManager `inject:""`
 	ConfigurationService  *Configuration              `inject:""`
@@ -21,35 +21,35 @@ type Heating struct {
 	InfluxdbClient        *influxdb.Client `inject:""`
 }
 
-func (h *Heating) Init() {
+func (h *Heater) Init() {
 	h.ScheduledMeasurements = make(map[time.Time]float64)
-	h.SchedulerManager.ScheduleExecution(uint64(viper.GetInt("heating.intervalSeconds")), h.ScheduledMeasurement)
-	h.MaxMeasurements = viper.GetInt("heating.maxMeasurements")
+	h.SchedulerManager.ScheduleExecution(uint64(viper.GetInt("heater.intervalSeconds")), h.ScheduledMeasurement)
+	h.MaxMeasurements = viper.GetInt("heater.maxMeasurements")
 }
 
-func (h *Heating) GetLast(configuration model.Configuration) (time.Time, float64, error) {
-	resp, err := resty.R().Get(getHeatingUrl(configuration))
+func (h *Heater) GetLast(configuration model.Configuration) (time.Time, float64, error) {
+	resp, err := resty.R().Get(getHeaterUrl(configuration))
 	if err == nil {
 		value, _ := strconv.ParseFloat(resp.String(), 64)
 		return time.Now(), value, err
 	} else {
-		log.Error("Unable to fetch heating measurement. Reason:", err)
+		log.Error("Unable to fetch heater measurement. Reason:", err)
 		return time.Now(), 0, err
 	}
 }
 
-func (h *Heating) GetScheduledMeasurements() *map[time.Time]float64 {
+func (h *Heater) GetScheduledMeasurements() *map[time.Time]float64 {
 	return &h.ScheduledMeasurements
 }
 
-func (h *Heating) ScheduledMeasurement() {
+func (h *Heater) ScheduledMeasurement() {
 
 	configuration := h.ConfigurationService.GetCurrent()
 	resp, err := resty.R().Get(getTemperatureUrl(configuration))
 	if err == nil {
 		value, _ := strconv.ParseFloat(resp.String(), 64)
 		h.ScheduledMeasurements[time.Now()] = value
-		log.Info("Scheduled heating measurement: ", value)
+		log.Info("Scheduled heater measurement: ", value)
 
 		// Remove old measurements
 		if len(h.ScheduledMeasurements) > h.MaxMeasurements {
@@ -69,7 +69,7 @@ func (h *Heating) ScheduledMeasurement() {
 		point := client.Point{
 			Measurement: "temperature",
 			Tags: map[string]string{
-				"location": "heating",
+				"location": "heater",
 			},
 			Fields: map[string]interface{}{
 				"value": value,
@@ -79,10 +79,10 @@ func (h *Heating) ScheduledMeasurement() {
 		h.InfluxdbClient.AddPoint(point)
 
 	} else {
-		log.Error("Unable to fetch heating measurement. Reason:", err)
+		log.Error("Unable to fetch heater measurement. Reason:", err)
 	}
 }
 
-func getHeatingUrl(configuration model.Configuration) string {
-	return "http://" + configuration.Temperature.Host + ":" + strconv.FormatUint(uint64(configuration.Temperature.Port), 10) + "/temp"
+func getHeaterUrl(configuration model.Configuration) string {
+	return "http://" + configuration.Heater.Host + ":" + strconv.FormatUint(uint64(configuration.Heater.Port), 10) + "/temp"
 }

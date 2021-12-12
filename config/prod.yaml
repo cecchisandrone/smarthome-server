@@ -9,7 +9,7 @@ influxdb:
   host: influxdb
   port: 8086
   database: smarthome
-heating:
+heater:
   intervalSeconds: 60
   maxMeasurements: 24
 temperature:

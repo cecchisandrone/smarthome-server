@@ -4,14 +4,14 @@ alarm:
 database:
   host: localhost
   port: 4306
-  showQueries: true
+  showQueries: false
 influxdb:
   host: localhost
   port: 8086
   database: smarthome
-heating:
+heater:
   intervalSeconds: 30
-  maxMeasurements: 24
+  maxMeasurements: 48
 temperature:
   maxMeasurements: 24
   intervalSeconds: 30
