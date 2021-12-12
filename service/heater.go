@@ -45,7 +45,7 @@ func (h *Heater) GetScheduledMeasurements() *map[time.Time]float64 {
 func (h *Heater) ScheduledMeasurement() {
 
 	configuration := h.ConfigurationService.GetCurrent()
-	resp, err := resty.R().Get(getTemperatureUrl(configuration))
+	resp, err := resty.R().Get(getHeaterUrl(configuration))
 	if err == nil {
 		value, _ := strconv.ParseFloat(resp.String(), 64)
 		h.ScheduledMeasurements[time.Now()] = value
