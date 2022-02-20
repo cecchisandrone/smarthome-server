@@ -17,4 +17,5 @@ type Configuration struct {
 	Humidity    Humidity
 	Heater      Heater
 	Inverters   []Inverter
+	PowerMeter  PowerMeter
 }

@@ -31,3 +31,6 @@ humidity:
   wrongMeasurementThreshold: 20
 inverter:
   intervalSeconds: 30
+power:
+  maxMeasurements: 24
+  intervalSeconds: 30

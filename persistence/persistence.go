@@ -30,7 +30,7 @@ func Init() *gorm.DB {
 	db.LogMode(viper.GetBool("database.showQueries"))
 
 	//Migrate the schema
-	db.AutoMigrate(&model.Profile{}, &model.Configuration{}, &model.Camera{}, &model.Gate{}, &model.Raspsonar{}, &model.Temperature{}, &model.Slack{}, &model.Alarm{}, &model.WellPump{}, &model.RainGauge{}, &model.Humidity{}, &model.Inverter{}, &model.Heater{})
+	db.AutoMigrate(&model.Profile{}, &model.Configuration{}, &model.Camera{}, &model.Gate{}, &model.Raspsonar{}, &model.Temperature{}, &model.Slack{}, &model.Alarm{}, &model.WellPump{}, &model.RainGauge{}, &model.Humidity{}, &model.Inverter{}, &model.Heater{}, &model.PowerMeter{})
 	db.Model(&model.Profile{}).AddForeignKey("configuration_id", "configurations(id)", "CASCADE", "CASCADE")
 	db.Model(&model.Camera{}).AddForeignKey("configuration_id", "configurations(id)", "CASCADE", "CASCADE")
 	db.Model(&model.Gate{}).AddForeignKey("configuration_id", "configurations(id)", "CASCADE", "CASCADE")
@@ -43,5 +43,6 @@ func Init() *gorm.DB {
 	db.Model(&model.Humidity{}).AddForeignKey("configuration_id", "configurations(id)", "CASCADE", "CASCADE")
 	db.Model(&model.Inverter{}).AddForeignKey("configuration_id", "configurations(id)", "CASCADE", "CASCADE")
 	db.Model(&model.Heater{}).AddForeignKey("configuration_id", "configurations(id)", "CASCADE", "CASCADE")
+	db.Model(&model.PowerMeter{}).AddForeignKey("configuration_id", "configurations(id)", "CASCADE", "CASCADE")
 	return db
 }
