@@ -18,19 +18,19 @@ import (
 )
 
 type InverterMetrics struct {
-	PowerPin1 float32 `json:"power_pin_1"`
-	PowerPin2  float32 `json:"power_pin_2"`
-	GridPowerReading float32 `json:"grid_power_reading"`
-	Riso float32 `json:"riso"`
-	InverterTemperature float32 `json:"inverter_temperature"`
-	BoosterTemperature float32 `json:"booster_temperature"`
+	PowerPin1                float32 `json:"power_pin_1"`
+	PowerPin2                float32 `json:"power_pin_2"`
+	GridPowerReading         float32 `json:"grid_power_reading"`
+	Riso                     float32 `json:"riso"`
+	InverterTemperature      float32 `json:"inverter_temperature"`
+	BoosterTemperature       float32 `json:"booster_temperature"`
 	DcAcConversionEfficiency float32 `json:"dc_ac_conversion_efficiency"`
-	DailyEnergy float32 `json:"daily_energy"`
-	WeeklyEnergy float32 `json:"weekly_energy"`
-	MontlyEnergy float32 `json:"monthly_energy"`
-	YearlyEnergy float32 `json:"yearly_energy"`
-	PowerPeak float32 `json:"power_peak"`
-	PowerPeakToday float32 `json:"power_peak_today"`
+	DailyEnergy              float32 `json:"daily_energy"`
+	WeeklyEnergy             float32 `json:"weekly_energy"`
+	MontlyEnergy             float32 `json:"monthly_energy"`
+	YearlyEnergy             float32 `json:"yearly_energy"`
+	PowerPeak                float32 `json:"power_peak"`
+	PowerPeakToday           float32 `json:"power_peak_today"`
 }
 
 type Inverter struct {
@@ -38,8 +38,8 @@ type Inverter struct {
 	SchedulerManager     *scheduler.SchedulerManager `inject:""`
 	ConfigurationService *Configuration              `inject:""`
 	NotificationService  *Notification               `inject:""`
-	InfluxdbClient  *influxdb.Client                  `inject:""`
-	Lock sync.Mutex
+	InfluxdbClient       *influxdb.Client            `inject:""`
+	Lock                 sync.Mutex
 }
 
 func (i *Inverter) Init() {
@@ -52,6 +52,16 @@ func (i *Inverter) GetInverters(configurationID string) []model.Inverter {
 	i.Db.Where("configuration_id = ?", configurationID).Find(&Inverters)
 
 	return Inverters
+}
+
+func (i *Inverter) GetDefaultInverter() (*model.Inverter, error) {
+
+	var Inverter model.Inverter
+	i.Db.First(&Inverter)
+	if Inverter.ID == 0 {
+		return nil, errors.New("Can't find a default Inverter")
+	}
+	return &Inverter, nil
 }
 
 func (i *Inverter) CreateOrUpdateInverter(configurationID string, Inverter *model.Inverter) {
@@ -123,15 +133,15 @@ func (i *Inverter) ScheduledMeasurement() {
 					"name": inverter.Name,
 				},
 				Fields: map[string]interface{}{
-					"power_pin_1": result.PowerPin1,
-					"power_pin_2": result.PowerPin2,
-					"grid_power_reading": result.GridPowerReading,
-					"riso": result.Riso,
-					"inverter_temperature": result.InverterTemperature,
-					"booster_temperature": result.BoosterTemperature,
+					"power_pin_1":                 result.PowerPin1,
+					"power_pin_2":                 result.PowerPin2,
+					"grid_power_reading":          result.GridPowerReading,
+					"riso":                        result.Riso,
+					"inverter_temperature":        result.InverterTemperature,
+					"booster_temperature":         result.BoosterTemperature,
 					"dc_ac_conversion_efficiency": result.DcAcConversionEfficiency,
 				},
-				Time:      time.Now(),
+				Time: time.Now(),
 			}
 			i.InfluxdbClient.AddPoint(point)
 		} else {

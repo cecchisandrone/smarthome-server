@@ -22,21 +22,36 @@ type PowerMeter struct {
 	ScheduledMeasurements map[time.Time]float64
 	SchedulerManager      *scheduler.SchedulerManager `inject:""`
 	ConfigurationService  *Configuration              `inject:""`
+	InverterService       *Inverter                   `inject:""`
 	MaxMeasurements       int
 	InfluxdbClient        *influxdb.Client `inject:""`
+	DefaultInverter       *model.Inverter
 }
 
 func (p *PowerMeter) Init() {
 	p.ScheduledMeasurements = make(map[time.Time]float64)
 	p.SchedulerManager.ScheduleExecution(uint64(viper.GetInt("power.intervalSeconds")), p.ScheduledMeasurement)
 	p.MaxMeasurements = viper.GetInt("power.maxMeasurements")
+	res, err := p.InverterService.GetDefaultInverter()
+	if err == nil {
+		p.DefaultInverter = res
+	} else {
+		log.Error("Unable to correctly initialize PowerMeter service", err)
+	}
 }
 
 func (p *PowerMeter) GetLast(configuration model.Configuration) (time.Time, float64, error) {
 	result := &PowerMeterMetrics{}
 	_, err := resty.R().SetResult(&result).Get(getPowerMeterUrl(configuration))
 	if err == nil {
-		value := result.Current * configuration.PowerMeter.AdjustmentFactor * configuration.PowerMeter.Voltage
+		inverterMetrics, err2 := p.InverterService.GetMetrics(p.DefaultInverter)
+		value := 0.0
+		if err2 == nil {
+			value = calculatePowerConsumption(result.Current, configuration.PowerMeter.AdjustmentFactor, configuration.PowerMeter.Voltage, inverterMetrics.GridPowerReading)
+		} else {
+			log.Warn("Unable to fetch inverter metrics. Reason:", err2)
+			value = calculatePowerConsumption(result.Current, configuration.PowerMeter.AdjustmentFactor, configuration.PowerMeter.Voltage, 0)
+		}
 		return time.Now(), value, err
 	} else {
 		log.Error("Unable to fetch power measurement. Reason:", err)
@@ -54,7 +69,14 @@ func (p *PowerMeter) ScheduledMeasurement() {
 	configuration := p.ConfigurationService.GetCurrent()
 	_, err := resty.R().SetResult(&result).Get(getPowerMeterUrl(configuration))
 	if err == nil {
-		value := result.Current * configuration.PowerMeter.AdjustmentFactor * configuration.PowerMeter.Voltage
+		inverterMetrics, err2 := p.InverterService.GetMetrics(p.DefaultInverter)
+		value := 0.0
+		if err2 == nil {
+			value = calculatePowerConsumption(result.Current, configuration.PowerMeter.AdjustmentFactor, configuration.PowerMeter.Voltage, inverterMetrics.GridPowerReading)
+		} else {
+			log.Warn("Unable to fetch inverter metrics. Reason:", err2)
+			value = calculatePowerConsumption(result.Current, configuration.PowerMeter.AdjustmentFactor, configuration.PowerMeter.Voltage, 0)
+		}
 		p.ScheduledMeasurements[time.Now()] = value
 		log.Info("Scheduled power measurement: ", value)
 
@@ -90,4 +112,9 @@ func (p *PowerMeter) ScheduledMeasurement() {
 
 func getPowerMeterUrl(configuration model.Configuration) string {
 	return "http://" + configuration.PowerMeter.Host + ":" + strconv.FormatUint(uint64(configuration.PowerMeter.Port), 10) + "/metrics"
+}
+
+// If returned value is positive we are consuming less than produced
+func calculatePowerConsumption(current float64, adjustmentFactor float64, voltage float64, inverterPower float32) float64 {
+	return float64(inverterPower) - (current * adjustmentFactor * voltage)
 }

@@ -33,4 +33,4 @@ inverter:
   intervalSeconds: 1800 # 30 minutes
 power:
   maxMeasurements: 24
-  intervalSeconds: 600 # 10 min
+  intervalSeconds: 300 # 5 min
