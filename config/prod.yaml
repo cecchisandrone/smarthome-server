@@ -10,7 +10,7 @@ influxdb:
   port: 8086
   database: smarthome
 heater:
-  intervalSeconds: 60
+  intervalSeconds: 900 # 15 minutes
   maxMeasurements: 24
 temperature:
   maxMeasurements: 24
