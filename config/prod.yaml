@@ -34,3 +34,5 @@ inverter:
 power:
   maxMeasurements: 24
   intervalSeconds: 300 # 5 min
+relay:
+  intervalSeconds: 300 # 5 min

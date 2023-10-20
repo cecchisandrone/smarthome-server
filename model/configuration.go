@@ -18,4 +18,5 @@ type Configuration struct {
 	Heater      Heater
 	Inverters   []Inverter
 	PowerMeter  PowerMeter
+	Relays      []Relay
 }
