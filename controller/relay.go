@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"github.com/cecchisandrone/smarthome-server/dto"
 	"net/http"
 
 	"github.com/cecchisandrone/smarthome-server/authentication"
@@ -144,31 +143,34 @@ func (w Relay) toggleRelay(ctx *gin.Context) {
 	configurationID := ctx.Param("id")
 	relayId := ctx.Param("relayId")
 
-	var body []dto.Pin
+	var body map[int]bool
 
 	if configuration := w.checkConfiguration(configurationID, ctx); configuration == nil {
 		return
 	}
 
 	manuallyActivated := ctx.DefaultQuery("manuallyActivated", "false")
-	manuallyActivatedBool, err1 := strconv.ParseBool(manuallyActivated)
-	if err := ctx.ShouldBindWith(&body, binding.JSON); err == nil && err1 == nil {
-		relay, err := w.RelayService.GetRelay(relayId)
+	manuallyActivatedBool, err := strconv.ParseBool(manuallyActivated)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": "Unable to parse request: " + err.Error()})
+	} else {
+		if err := ctx.ShouldBindWith(&body, binding.JSON); err == nil {
+			relay, err := w.RelayService.GetRelay(relayId)
 
-		if err == nil {
-			err = w.RelayService.ToggleRelay(relay, body, manuallyActivatedBool)
 			if err == nil {
-				ctx.JSON(http.StatusOK, body)
+				err = w.RelayService.ToggleRelay(relay, body, manuallyActivatedBool)
+				if err == nil {
+					ctx.JSON(http.StatusOK, body)
+				} else {
+					ctx.JSON(http.StatusServiceUnavailable, gin.H{"status": http.StatusNotFound, "message": err.Error()})
+				}
 			} else {
-				ctx.JSON(http.StatusServiceUnavailable, gin.H{"status": http.StatusNotFound, "message": err.Error()})
+				ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			}
 		} else {
-			ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+			ctx.JSON(http.StatusBadRequest, gin.H{"message": "Unable to parse request: " + err.Error()})
 		}
-	} else {
-		ctx.JSON(http.StatusBadRequest, gin.H{"message": "Unable to parse request: " + err.Error() + " or " + err1.Error()})
 	}
-
 }
 
 func (w Relay) checkConfiguration(configurationID string, ctx *gin.Context) *model.Configuration {

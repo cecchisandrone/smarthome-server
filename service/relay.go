@@ -67,12 +67,7 @@ func (r *Relay) DeleteRelay(RelayID string) error {
 
 func (r *Relay) GetRelayStatus(Relay *model.Relay) (map[int]bool, error) {
 
-	type Pin struct {
-		Pin    int  `json:"pin"`
-		Status bool `json:"status"`
-	}
-
-	var result []Pin
+	var result []dto.Pin
 	resp, err := resty.R().SetResult(&result).Get(getRelayUrl(Relay))
 	if err == nil && resp.StatusCode() == 200 {
 		pinMap := make(map[int]bool)
@@ -81,15 +76,26 @@ func (r *Relay) GetRelayStatus(Relay *model.Relay) (map[int]bool, error) {
 		}
 		return pinMap, nil
 	} else {
-		return nil, errors.New("unable to get relay status")
+		return nil, errors.New("unable to get relay status. " + err.Error())
 	}
 }
 
-func (r *Relay) ToggleRelay(Relay *model.Relay, status []dto.Pin, manuallyActivated bool) error {
+func (r *Relay) ToggleRelay(Relay *model.Relay, status map[int]bool, manuallyActivated bool) error {
 
-	resp, err := resty.R().SetBody(status).Put(getRelayUrl(Relay))
+	var body []dto.Pin
+
+	for key, status := range status {
+
+		pin := dto.Pin{
+			Pin:    key,
+			Status: status,
+		}
+		body = append(body, pin)
+	}
+
+	resp, err := resty.R().SetBody(body).Put(getRelayUrl(Relay))
 	if err != nil || resp.StatusCode() != 200 {
-		return errors.New(fmt.Sprintf("unable to toggle relay %s to %d", Relay.Name, status))
+		return errors.New(fmt.Sprintf("unable to toggle relay %s. Reason: %s", Relay.Name, err.Error()))
 	}
 	Relay.ManuallyActivated = manuallyActivated
 	r.Db.Save(&Relay)
@@ -139,43 +145,46 @@ func (r *Relay) ScheduledActivation() {
 				continue
 			}
 
-			// range over status map to check if any pin is on
-			for _, pinStatus := range status {
+			allPinsStatus := true
+			for _, value := range status {
+				if !value {
+					allPinsStatus = false
+					break
+				}
+			}
 
-				timeIntervals, err := utils.ParseTimeIntervals(Relay.ActivationIntervals)
-				if err == nil {
-					powerOffMatches := 0
-					for label, startEndTimes := range timeIntervals {
-						startTime := startEndTimes[0]
-						endTime := startEndTimes[1]
+			timeIntervals, err := utils.ParseTimeIntervals(Relay.ActivationIntervals)
+			if err == nil {
+				powerOffMatches := 0
+				for label, startEndTimes := range timeIntervals {
+					startTime := startEndTimes[0]
+					endTime := startEndTimes[1]
 
-						// Relay currently off, check if it should be powered on
-						if !pinStatus && startTime.Before(currentTime) && endTime.After(currentTime) {
+					// Relay currently off, check if it should be powered on
+					if !allPinsStatus && startTime.Before(currentTime) && endTime.After(currentTime) {
 
-							log.Info("Turning on relay " + Relay.Name + " for interval " + label)
-							err := r.ToggleAllPinsRelay(&Relay, true)
-							if err != nil {
-								r.NotificationService.SendSlackMessage(slack.AlarmChannel, "Unable to turn on relay "+Relay.Name+" for interval "+label)
-							}
-							break
-						}
-
-						// Relay on, check if it should be powered off
-						if !pinStatus && (startTime.After(currentTime) || endTime.Before(currentTime)) {
-							powerOffMatches++
-						}
-					}
-					// Relay currently on, check if it should be powered off
-					if len(timeIntervals) == powerOffMatches {
-						log.Info("Turning off relay " + Relay.Name + ". We are out of interval/s " + Relay.ActivationIntervals)
-						err := r.ToggleAllPinsRelay(&Relay, false)
+						log.Info("Turning on relay " + Relay.Name + " for interval " + label)
+						err := r.ToggleAllPinsRelay(&Relay, true)
 						if err != nil {
-							r.NotificationService.SendSlackMessage(slack.AlarmChannel, "Unable to turn off relay "+Relay.Name)
+							r.NotificationService.SendSlackMessage(slack.AlarmChannel, "Unable to turn on relay "+Relay.Name+" for interval "+label)
 						}
+						break
+					}
+
+					// Relay on, check if it should be powered off
+					if allPinsStatus && (startTime.After(currentTime) || endTime.Before(currentTime)) {
+						powerOffMatches++
+					}
+				}
+				// Relay currently on, check if it should be powered off
+				if len(timeIntervals) == powerOffMatches {
+					log.Info("Turning off relay " + Relay.Name + ". We are out of interval/s " + Relay.ActivationIntervals)
+					err := r.ToggleAllPinsRelay(&Relay, false)
+					if err != nil {
+						r.NotificationService.SendSlackMessage(slack.AlarmChannel, "Unable to turn off relay "+Relay.Name)
 					}
 				}
 			}
 		}
 	}
-
 }
