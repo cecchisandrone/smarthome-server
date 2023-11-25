@@ -69,12 +69,16 @@ func (r *Relay) GetRelayStatus(Relay *model.Relay) (map[int]bool, error) {
 
 	var result []dto.Pin
 	resp, err := resty.R().SetResult(&result).Get(getRelayUrl(Relay))
-	if err == nil && resp.StatusCode() == 200 {
-		pinMap := make(map[int]bool)
-		for _, pinStatus := range result {
-			pinMap[pinStatus.Pin] = pinStatus.Status
+	if err == nil {
+		if resp.StatusCode() == 200 {
+			pinMap := make(map[int]bool)
+			for _, pinStatus := range result {
+				pinMap[pinStatus.Pin] = pinStatus.Status
+			}
+			return pinMap, nil
+		} else {
+			return nil, errors.New(fmt.Sprintf("unable to get relay status. Status code: %d", resp.StatusCode()))
 		}
-		return pinMap, nil
 	} else {
 		return nil, errors.New("unable to get relay status. " + err.Error())
 	}
