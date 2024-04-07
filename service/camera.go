@@ -88,5 +88,7 @@ func generateUrl(camera *model.Camera) {
 		camera.Url = fmt.Sprintf("http://%s:%d/media?action=snapshot&user=%s&pwd=%s", camera.Host, camera.Port, camera.Username, camera.Password)
 	case model.SV3C:
 		camera.Url = fmt.Sprintf("http://%s:%d/sv3c/%s/tmpfs/snap.jpg", camera.Host, camera.Port, camera.Name)
+	case model.IFrame:
+		camera.Url = fmt.Sprintf("http://%s:%d/%s", camera.Host, camera.Port, camera.Username)
 	}
 }

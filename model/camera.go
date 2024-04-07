@@ -22,12 +22,13 @@ const (
 	ADJ      CameraType = "adj"
 	Microcam CameraType = "microcam"
 	SV3C     CameraType = "sv3c"
+	IFrame   CameraType = "iframe"
 )
 
 type Camera struct {
 	gorm.Model
 	Name            string
-	Type            CameraType `sql:"not null;type:ENUM('foscam', 'adj', 'microcam', 'sv3c')"`
+	Type            CameraType `sql:"not null;type:ENUM('foscam', 'adj', 'microcam', 'sv3c', 'iframe')"`
 	Host            string
 	Port            uint
 	Url             string `gorm:"-"`
