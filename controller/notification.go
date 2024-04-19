@@ -20,19 +20,20 @@ func (n Notification) InitRoutes() {
 
 	profile := n.Router.Group("/api/v1/configurations/:id/notification").Use(n.AuthMiddlewareFactory.AuthMiddleware.MiddlewareFunc())
 
-	profile.POST("/slack/test", n.test)
+	profile.POST("/slack", n.sendSlackNotification)
 }
 
-func (n Notification) test(ctx *gin.Context) {
+func (n Notification) sendSlackNotification(ctx *gin.Context) {
 
 	configurationID := ctx.Param("id")
+	message := ctx.DefaultQuery("message", "Default message")
 
 	configuration := n.checkConfiguration(configurationID, ctx)
 	if configuration == nil {
 		return
 	}
 
-	err := n.NotificationService.SendSlackMessage("alarm", "This is a test message")
+	err := n.NotificationService.SendSlackMessage(configuration.Slack.NotificationChannel, message)
 
 	if err == nil {
 		ctx.JSON(http.StatusOK, gin.H{"status": http.StatusOK})
