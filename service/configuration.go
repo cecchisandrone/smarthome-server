@@ -31,7 +31,7 @@ func (c *Configuration) GetCurrent() model.Configuration {
 func (c *Configuration) GetConfiguration(configurationID string) (*model.Configuration, error) {
 
 	var configuration model.Configuration
-	c.Db.Preload("Profile").Preload("Cameras").Preload("Gate").Preload("Temperature").Preload("Slack").Preload("Raspsonar").Preload("Alarm").Preload("WellPumps").Preload("Cameras").Preload("RainGauge").Preload("Humidity").Preload("Inverters").Preload("Heater").Preload("PowerMeter").Preload("Relays").First(&configuration, configurationID)
+	c.Db.Preload("Profile").Preload("Cameras").Preload("Gate").Preload("Temperature").Preload("Slack").Preload("Raspsonar").Preload("Alarm").Preload("WellPumps").Preload("Cameras").Preload("RainGauge").Preload("Humidity").Preload("Inverters").Preload("Heater").Preload("PowerMeter").Preload("Relays").Preload("Rental").First(&configuration, configurationID)
 	if configuration.ID == 0 {
 		return nil, errors.New("Can't find configuration with ID " + string(configurationID))
 	}

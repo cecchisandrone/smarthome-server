@@ -19,4 +19,5 @@ type Configuration struct {
 	Inverters   []Inverter
 	PowerMeter  PowerMeter
 	Relays      []Relay
+	Rental      Rental
 }
