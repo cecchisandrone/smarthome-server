@@ -23,7 +23,7 @@ func (r *Rental) Init() {
 
 func (r *Rental) GenerateAccessLink(configuration model.Configuration, booking dto.Booking) (string, error) {
 	link := configuration.Rental.Url
-	key := os.Getenv("CRYPTO_KEY")
+	key := os.Getenv("SMARTHOME_CRYPTO_KEY")
 	log.Info("Generating access link for booking: ", booking)
 
 	// Concatenate the arguments with | separator
