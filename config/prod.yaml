@@ -1,5 +1,5 @@
 alarm:
-  locationChangeCheckIntervalSeconds: 120
+  locationChangeCheckIntervalSeconds: 3600
   automaticAlarmToggleIntervalSeconds: 240
 database:
   host: smarthome-db

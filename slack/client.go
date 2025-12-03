@@ -50,7 +50,7 @@ type Channel struct {
 func (s *Client) GetChannelList() (ChannelListResponse, error) {
 
 	channelList := ChannelListResponse{}
-	_, err := resty.R().SetResult(&channelList).SetQueryParams(map[string]string{"token": s.Configuration.Token, "scope": channelListSuffix}).Get(apiUrl + channelListSuffix)
+	_, err := resty.R().SetResult(&channelList).SetHeader("Authorization", "Bearer "+s.Configuration.Token).Get(apiUrl + channelListSuffix)
 	return channelList, err
 }
 
@@ -61,7 +61,7 @@ func (s *Client) SendMessageToChannel(channel string, message string) error {
 		for _, c := range channelList.Channels {
 			if c.Name == channel {
 				Response := Response{}
-				_, err := resty.R().SetResult(&Response).SetQueryParams(map[string]string{"token": s.Configuration.Token, "channel": c.Id, "text": message, "as_user": "false", "username": "SmartHome", "icon_url": "https://dl.dropboxusercontent.com/u/1580227/icons/home.png"}).Get(apiUrl + chatPostMessageSuffix)
+				_, err := resty.R().SetResult(&Response).SetHeader("Authorization", "Bearer "+s.Configuration.Token).SetQueryParams(map[string]string{"channel": c.Id, "text": message}).Get(apiUrl + chatPostMessageSuffix)
 				return err
 			}
 		}
@@ -76,7 +76,7 @@ func (s *Client) GetLocationChangeChannelHistory(channel string) (*ChannelHistor
 	if err == nil {
 		for _, c := range channelList.Channels {
 			if c.Name == channel {
-				_, err := resty.R().SetResult(&channelHistoryResponse).SetQueryParams(map[string]string{"token": s.Configuration.Token, "channel": c.Id, "scope": channelHistorySuffix}).Get(apiUrl + channelHistorySuffix)
+				_, err := resty.R().SetResult(&channelHistoryResponse).SetHeader("Authorization", "Bearer "+s.Configuration.Token).SetQueryParams(map[string]string{"channel": c.Id, "scope": channelHistorySuffix}).Get(apiUrl + channelHistorySuffix)
 				return &channelHistoryResponse, err
 			}
 		}
